@@ -40,6 +40,4 @@ public class DiscordBot extends ListenerAdapter {
 
         rossBot.getPresence().setGame(Game.playing("Hearthstone"));
     }
-
-
 }

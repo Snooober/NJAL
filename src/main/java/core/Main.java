@@ -7,9 +7,6 @@ public class Main {
     public static void main(String[] args) {
         //SLF4J config
         BasicConfigurator.configure();
-
         DiscordBot.startRoss();
-
-
     }
 }

@@ -2,7 +2,34 @@ package constants;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+import static discordbot.DiscordBot.njal;
+
 public class BotMsgs {
+    public static String regLocked = "Registration is currently locked.";
+    public static String dmUnregPlayer = "You have been unregistered from the tournament by an admin.";
+
+    public static String wasNotReg(String discordId) {
+        String name = njal.getMemberById(discordId).getUser().getName();
+        return name + " was not registered for the tournament.";
+
+    }
+
+    public static String playerUnreg(String discordName) {
+        return discordName + " has been unregistered.";
+    }
+
+    public static String playerRegistered(MessageReceivedEvent event) {
+        return event.getAuthor().getName() + " has been registered!";
+    }
+
+    public static String regQueueSuperAdmin(MessageReceivedEvent event) {
+        return event.getAuthor().getName() + " is pending registration.";
+    }
+
+    public static String alreadyReg(MessageReceivedEvent event) {
+        return event.getAuthor().getName() + " was already registered.";
+    }
+
     public static String regQueueDM(MessageReceivedEvent event) {
         return event.getAuthor().getName() + " has been queued for registration.\n" +
                 "\n" +

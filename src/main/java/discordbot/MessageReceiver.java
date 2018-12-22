@@ -51,11 +51,15 @@ public class MessageReceiver extends ListenerAdapter {
 
         //!register
         if (eventMsgStr.equals("!register")) {
+            RegistrationHandler.registerPlayer(event);
+        }
 
+        //!unregister
+        if (eventMsgStr.equals("!unregister")) {
+            RegistrationHandler.unregisterPlayer(event);
         }
 
 
         clearMsgs(event);
-
     }
 }

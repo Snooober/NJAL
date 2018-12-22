@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class SendMessage {
-    public static void updateRegPlayerMsg() {
+    public static synchronized void updateRegPlayerMsg() {
         List<String> messageList = regPlayerMsg();
         Iterator<String> messageListIt = messageList.iterator();
 
