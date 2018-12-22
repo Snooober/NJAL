@@ -1,5 +1,6 @@
 package discordbot;
 
+import constants.BotMsgs;
 import constants.DiscordIds;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Role;
@@ -7,7 +8,10 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
+import static discordbot.DiscordBot.njal;
 
 public class MessageReceiver extends ListenerAdapter {
 
@@ -57,6 +61,61 @@ public class MessageReceiver extends ListenerAdapter {
         //!unregister
         if (eventMsgStr.equals("!unregister")) {
             RegistrationHandler.unregisterPlayer(event);
+        }
+
+        //lol
+        if ((eventMsgStr.toLowerCase().matches(".*bot.*") && eventMsgStr.toLowerCase().matches(".*hearthstone.*")) || (eventMsgStr.toLowerCase().matches(".*ross.*") && eventMsgStr.toLowerCase().matches(".*hearthstone.*"))) {
+            String message;
+            int rand = new Random().nextInt(100);
+            if (rand < 33) {
+                message = "I play what I want.";
+            } else if (rand < 66) {
+                message = "Artifact has too much RNG.";
+            } else {
+                message = "Artifact is too expensive.";
+            }
+            event.getChannel().sendMessage(message).queue();
+        }
+
+        /*
+         * ~~~~~~~~~~~~~~~~~~~~~~~~~ADMIN COMMANDS~~~~~~~~~~~~~~~~~~~~~~~~~
+         */
+
+        if (eventChanName.equals("admin-commands") || eventChanName.equals("super-admin")) {
+            if (isAdmin(event)) {
+                //!!unregister [discord id]
+                if (eventMsgStr.matches("!!unregister\\s\\d*")) {
+                    String discordId = eventMsgStr.split("\\s", 2)[1];
+                    RegistrationHandler.unregisterPlayer(event, discordId);
+                }
+
+                //!!lockreg
+                if (eventMsgStr.equals("!!reg lock")) {
+                    RegistrationHandler.lockReg();
+                    event.getChannel().sendMessage(BotMsgs.adminLockedReg).queue();
+                    njal.getTextChannelById(DiscordIds.ChannelIds.STANDINGS_REPORT_CHANNEL).sendMessage(BotMsgs.adminLockedReg).queue();
+                }
+
+                //!!unlock reg
+                if (eventMsgStr.equals("!!reg unlock")) {
+                    RegistrationHandler.unlockReg();
+                    event.getChannel().sendMessage(BotMsgs.adminUnlockedReg).queue();
+                    njal.getTextChannelById(DiscordIds.ChannelIds.STANDINGS_REPORT_CHANNEL).sendMessage(BotMsgs.adminUnlockedReg).queue();
+                }
+
+                //!!steam connect [discord id][steam id]
+                if (eventMsgStr.matches("!!steam\\sconnect\\s\\d+\\s[\\w:]+")) {
+                    String[] messageArray = eventMsgStr.split("\\s", 4);
+                    String discordId = messageArray[2];
+                    String steamId = messageArray[3];
+                    SteamConnector.connectSteamId(event, discordId, steamId);
+                }
+
+                //!!steam pending
+                if (eventMsgStr.equals("!!steam pending")) {
+                    SteamConnector.sendPendRegPlayers(event);
+                }
+            }
         }
 
 

@@ -21,15 +21,20 @@ import static discordbot.DiscordBot.njal;
 public class RegistrationHandler {
     private static boolean regOpen = true;
 
-    public static void closeReg() {
+    public static void lockReg() {
         regOpen = false;
     }
 
-    public static void openReg() {
+    public static void unlockReg() {
         regOpen = true;
     }
 
     public static synchronized void registerPlayer(MessageReceivedEvent event) {
+        int discrim = Integer.parseInt(event.getAuthor().getDiscriminator());
+        registerPlayer(event, event.getAuthor().getName(), event.getAuthor().getId(), discrim);
+    }
+
+    public static synchronized void registerPlayer(MessageReceivedEvent event, String discordName, String discordId, int discrim) {
         if (!regOpen) {
             event.getChannel().sendMessage(BotMsgs.regLocked).queue();
             return;
@@ -37,10 +42,6 @@ public class RegistrationHandler {
 
         Connection conn = null;
         PreparedStatement prepSt = null;
-
-        String discordName = event.getAuthor().getName();
-        String discordId = event.getAuthor().getId();
-        Integer discrim = Integer.parseInt(event.getAuthor().getDiscriminator());
 
         try {
             conn = MyDBConnection.getConnection();
@@ -89,15 +90,15 @@ public class RegistrationHandler {
                         prepSt.setInt(2, newOrderReg);
                         if (prepSt.executeUpdate() > 0) {
                             Role regRole = njal.getRolesByName("Registered", true).iterator().next();
-                            Member member = njal.getMember(event.getAuthor());
+                            Member member = njal.getMemberById(discordId);
                             GuildController guildCont = new GuildController(njal);
                             guildCont.addSingleRoleToMember(member, regRole).queue();
 
-                            event.getChannel().sendMessage(BotMsgs.playerRegistered(event)).queue();
+                            member.getUser().openPrivateChannel().complete().sendMessage(BotMsgs.playerRegistered(discordName)).queue();
                             SendMessage.updateRegPlayerMsg();
 
                             //notify super-admin channel
-                            njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.playerRegistered(event)).queue();
+                            njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.playerRegistered(discordName)).queue();
                         } else {
                             //TODO report problem
                         }
@@ -110,7 +111,7 @@ public class RegistrationHandler {
                     prepSt.setString(2, discordName);
                     prepSt.setString(3, discordId);
                     if (prepSt.executeUpdate() > 0) {
-                        sendRegQMsgs(event);
+                        sendRegQMsgs(event, discordId);
                     } else {
                         //TODO report problem
                     }
@@ -138,7 +139,7 @@ public class RegistrationHandler {
                 prepSt.setInt(3, discrim);
                 prepSt.setString(4, discordName);
                 if (prepSt.executeUpdate() > 0) {
-                    sendRegQMsgs(event);
+                    sendRegQMsgs(event, discordId);
                 }
             }
 
@@ -309,14 +310,15 @@ public class RegistrationHandler {
         }
     }
 
-    private static void sendRegQMsgs(MessageReceivedEvent event) {
+    private static void sendRegQMsgs(MessageReceivedEvent event, String discordId) {
         //send channel message
         if (!event.getMessage().getChannelType().equals(ChannelType.PRIVATE)) {
             event.getChannel().sendMessage(BotMsgs.regQueueChan(event)).queue();
         }
         //send direct message
-        event.getAuthor().openPrivateChannel().complete().sendMessage(BotMsgs.regQueueDM(event)).queue();
+        String discordName = njal.getMemberById(discordId).getUser().getName();
+        njal.getMemberById(discordId).getUser().openPrivateChannel().complete().sendMessage(BotMsgs.regQueueDM(discordName)).queue();
         //notify super-admin
-        njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.regQueueSuperAdmin(event)).queue();
+        njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.regQueueSuperAdmin(discordName)).queue();
     }
 }

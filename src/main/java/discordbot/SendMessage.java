@@ -118,9 +118,8 @@ public class SendMessage {
             String message = "```Registered Players```";
             int numRows = columnsList.get(0).size();
             int rowIndex = 0;
+            String potentialMsg = "`";
             while (rowIndex < numRows) {
-                String potentialMsg = "`";
-
                 //for each row, iterate through columns and add entries to potentialMsg
                 columnsListIt = columnsList.listIterator();
                 while (columnsListIt.hasNext()) {
@@ -151,6 +150,7 @@ public class SendMessage {
 
                 //end of a row
                 message = message.concat("\n");
+                potentialMsg = "`";
                 rowIndex++;
             }
             fullMessageArray.add(message);
@@ -207,5 +207,48 @@ public class SendMessage {
             entriesIt.set(entry);
         }
         return entries;
+    }
+
+    public static List<String> listMessageBuilder(List<List<String>> columnsList) {
+        List<String> fullMessageList = new ArrayList<>();
+
+        //make each entry the same size for each column
+        ListIterator<List<String>> columnsListIt = columnsList.listIterator();
+        while (columnsListIt.hasNext()) {
+            List<String> column = columnsListIt.next();
+            columnsListIt.set(SendMessage.evenStrLength(column));
+        }
+
+        //make full message
+        String message = "``` ```";
+        int numRows = columnsList.get(0).size();
+        int rowIndex = 0;
+        String potentialMsg = "`";
+        while (rowIndex < numRows) {
+            //for each row, iterate through columns and add entries to potentialMsg
+            columnsListIt = columnsList.listIterator();
+            while (columnsListIt.hasNext()) {
+                List<String> column = columnsListIt.next();
+                potentialMsg = potentialMsg.concat(column.get(rowIndex) + "` ");
+            }
+            potentialMsg = potentialMsg.stripTrailing();
+
+            //max char limit is 2000, so if concating the potentialMsg to message will be less then 1996, go ahead and concat.
+            //if not, add current message to array and then make a new message for the bot to send
+            if ((message.length() + potentialMsg.length()) <= 1996) {
+                message = message.concat(potentialMsg);
+            } else {
+                fullMessageList.add(message);
+                message = potentialMsg;
+            }
+
+            //end of row
+            message = message.concat("\n");
+            potentialMsg = "`";
+            rowIndex++;
+        }
+        fullMessageList.add(message);
+
+        return fullMessageList;
     }
 }

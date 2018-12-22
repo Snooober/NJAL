@@ -7,6 +7,15 @@ import static discordbot.DiscordBot.njal;
 public class BotMsgs {
     public static String regLocked = "Registration is currently locked.";
     public static String dmUnregPlayer = "You have been unregistered from the tournament by an admin.";
+    public static String adminLockedReg = "Registration locked.";
+    public static String adminUnlockedReg = "Registration unlocked.";
+    public static String discordIdNotFound = "Discord ID not found in player_info table.";
+    public static String steamIdAlreadyLinked = "Steam ID already linked to a Discord account.";
+    public static String discordIdhasSteamId = "Discord account is already linked to a Steam ID.";
+    public static String steamIdLinkedAttemptReg = "Steam ID has been linked. Attempting to register player...";
+    public static String steamIdLinkedNotPendReg = "Steam ID has been linked, but player is not pending registration.";
+    public static String steamIdLinkedMultiple = "Steam ID was updated for more than one discord account. See player_info table.";
+    public static String steamIdProblemLinking = "There was a problem linking the steam ID.";
 
     public static String wasNotReg(String discordId) {
         String name = njal.getMemberById(discordId).getUser().getName();
@@ -18,20 +27,20 @@ public class BotMsgs {
         return discordName + " has been unregistered.";
     }
 
-    public static String playerRegistered(MessageReceivedEvent event) {
-        return event.getAuthor().getName() + " has been registered!";
+    public static String playerRegistered(String discordName) {
+        return discordName + " has been registered!";
     }
 
-    public static String regQueueSuperAdmin(MessageReceivedEvent event) {
-        return event.getAuthor().getName() + " is pending registration.";
+    public static String regQueueSuperAdmin(String discordName) {
+        return discordName + " is pending registration.";
     }
 
     public static String alreadyReg(MessageReceivedEvent event) {
         return event.getAuthor().getName() + " was already registered.";
     }
 
-    public static String regQueueDM(MessageReceivedEvent event) {
-        return event.getAuthor().getName() + " has been queued for registration.\n" +
+    public static String regQueueDM(String discordName) {
+        return discordName + " has been queued for registration.\n" +
                 "\n" +
                 "Please make sure you have connected your Steam account to Discord!\n" +
                 "(See \"User Settings\" > \"Connections\" in the Discord app.)\n" +
