@@ -28,7 +28,7 @@ import java.util.ListIterator;
 
 import static discordbot.DiscordBot.njal;
 
-public class SendMessage {
+class SendMessage {
     public static void sendDirectMessage(User user, String message) {
         user.openPrivateChannel().complete().sendMessage(message).queue();
         System.out.println("Sent direct message to " + user.getName() + ": " + message);

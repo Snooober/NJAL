@@ -19,7 +19,7 @@ import java.sql.SQLException;
 
 import static discordbot.DiscordBot.njal;
 
-public class RegistrationHandler {
+class RegistrationHandler {
     private static boolean regOpen = true;
 
     public static void lockReg() {
@@ -66,9 +66,7 @@ public class RegistrationHandler {
                     prepSt.setInt(1, discrim);
                     prepSt.setString(2, discordName);
                     prepSt.setString(3, discordId);
-                    if (prepSt.executeUpdate() < 0) {
-                        //TODO report problem and break
-                    }
+                    prepSt.executeUpdate();
 
                     //Check if player_id is in tourn_players table, if not add to tourn_players
                     sql = "SELECT * FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE player_id = ?;";
@@ -89,20 +87,19 @@ public class RegistrationHandler {
                         prepSt = conn.prepareStatement(sql);
                         prepSt.setInt(1, player_id);
                         prepSt.setInt(2, newOrderReg);
-                        if (prepSt.executeUpdate() > 0) {
-                            Role regRole = njal.getRolesByName("Registered", true).iterator().next();
-                            Member member = njal.getMemberById(discordId);
-                            GuildController guildCont = new GuildController(njal);
-                            guildCont.addSingleRoleToMember(member, regRole).queue();
+                        prepSt.executeUpdate();
 
-                            SendMessage.sendDirectMessage(member.getUser(), BotMsgs.playerRegistered(discordName));
-                            SendMessage.updateRegPlayerMsg();
+                        //add to discord role "Registered"
+                        Role regRole = njal.getRolesByName("Registered", true).iterator().next();
+                        Member member = njal.getMemberById(discordId);
+                        GuildController guildCont = new GuildController(njal);
+                        guildCont.addSingleRoleToMember(member, regRole).queue();
 
-                            //notify super-admin channel
-                            njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.playerRegistered(discordName)).queue();
-                        } else {
-                            //TODO report problem
-                        }
+                        SendMessage.sendDirectMessage(member.getUser(), BotMsgs.playerRegistered(discordName));
+                        SendMessage.updateRegPlayerMsg();
+
+                        //notify super-admin channel
+                        njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.playerRegistered(discordName)).queue();
                     }
                 } else {
                     //steam_id not linked, pend reg
@@ -111,11 +108,8 @@ public class RegistrationHandler {
                     prepSt.setInt(1, discrim);
                     prepSt.setString(2, discordName);
                     prepSt.setString(3, discordId);
-                    if (prepSt.executeUpdate() > 0) {
-                        sendRegQMsgs(event, discordId);
-                    } else {
-                        //TODO report problem
-                    }
+                    prepSt.executeUpdate();
+                    sendRegQMsgs(event, discordId);
                 }
             } else {
                 //find empty player_id

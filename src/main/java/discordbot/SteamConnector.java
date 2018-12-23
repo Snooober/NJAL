@@ -10,10 +10,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-public class SteamConnector {
+class SteamConnector {
     public static void connectSteamId(MessageReceivedEvent event, String discordId, String steamId) {
         Connection conn = null;
         PreparedStatement prepSt = null;
@@ -148,9 +147,8 @@ public class SteamConnector {
             columnsList.add(steamIdCol);
 
             List<String> message = SendMessage.listMessageBuilder(columnsList);
-            Iterator<String> messageIt = message.iterator();
-            while (messageIt.hasNext()) {
-                event.getChannel().sendMessage(messageIt.next()).queue();
+            for (String s : message) {
+                event.getChannel().sendMessage(s).queue();
             }
 
             rs.close();

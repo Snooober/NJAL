@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import static discordbot.DiscordBot.njal;
 
-public class MessageReceiver extends ListenerAdapter {
+class MessageReceiver extends ListenerAdapter {
     private boolean unregisterAllConfirm = false;
 
     private boolean isAdmin(MessageReceivedEvent event) {
