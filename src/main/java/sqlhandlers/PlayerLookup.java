@@ -1,6 +1,6 @@
 package sqlhandlers;
 
-import constants.SQL_TableNames;
+import constants.SQLTableNames;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,7 +18,7 @@ public class PlayerLookup {
             String sql;
             ResultSet rs;
 
-            sql = "SELECT player_id FROM " + SQL_TableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
+            sql = "SELECT player_id FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
             prepSt = conn.prepareStatement(sql);
             prepSt.setString(1, discordId);
             rs = prepSt.executeQuery();
@@ -54,6 +54,51 @@ public class PlayerLookup {
         return player_id;
     }
 
+    public static String getDiscordId(int playerId) {
+        Connection conn = null;
+        PreparedStatement prepSt = null;
+        String discordId = null;
+
+        try {
+            conn = MyDBConnection.getConnection();
+            String sql;
+            ResultSet rs;
+
+            sql = "SELECT discord_id FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
+            prepSt = conn.prepareStatement(sql);
+            prepSt.setInt(1, playerId);
+            rs = prepSt.executeQuery();
+            if (rs.next()) {
+                discordId = rs.getString("discord_id");
+            }
+
+            rs.close();
+            prepSt.close();
+            conn.close();
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (prepSt != null) {
+                    prepSt.close();
+                }
+            } catch (SQLException se) {
+                //do nothing
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+
+        return discordId;
+    }
+
     public static String getDiscordName(String discordId) {
         Connection conn = null;
         PreparedStatement prepSt = null;
@@ -64,7 +109,7 @@ public class PlayerLookup {
             String sql;
             ResultSet rs;
 
-            sql = "SELECT discord_name FROM " + SQL_TableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
+            sql = "SELECT discord_name FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
             prepSt = conn.prepareStatement(sql);
             prepSt.setString(1, discordId);
             rs = prepSt.executeQuery();

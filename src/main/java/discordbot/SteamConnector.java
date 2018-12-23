@@ -1,7 +1,7 @@
 package discordbot;
 
 import constants.BotMsgs;
-import constants.SQL_TableNames;
+import constants.SQLTableNames;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import sqlhandlers.MyDBConnection;
 
@@ -25,7 +25,7 @@ public class SteamConnector {
             String sql;
 
             //check if discord ID is found, and that steam_id is NULL
-            sql = "SELECT discord_id, discrim, steam_id, discord_name, pend_reg FROM " + SQL_TableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
+            sql = "SELECT discord_id, discrim, steam_id, discord_name, pend_reg FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
             prepSt = conn.prepareStatement(sql);
             prepSt.setString(1, discordId);
             rs = prepSt.executeQuery();
@@ -39,7 +39,7 @@ public class SteamConnector {
             }
 
             //check if steam ID is already linked to another discord account
-            sql = "SELECT steam_id FROM " + SQL_TableNames.SQL_PLAYER_INFO + " WHERE steam_id = ?;";
+            sql = "SELECT steam_id FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE steam_id = ?;";
             prepSt = conn.prepareStatement(sql);
             prepSt.setString(1, steamId);
             rsSteamId = prepSt.executeQuery();
@@ -52,7 +52,7 @@ public class SteamConnector {
             //link steam ID
             int discrim = rs.getInt("discrim");
             String discordName = rs.getString("discord_name");
-            sql = "UPDATE " + SQL_TableNames.SQL_PLAYER_INFO + " SET steam_id = ? WHERE discord_id = ?;";
+            sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET steam_id = ? WHERE discord_id = ?;";
             prepSt = conn.prepareStatement(sql);
             prepSt.setString(1, steamId);
             prepSt.setString(2, discordId);
@@ -123,7 +123,7 @@ public class SteamConnector {
             String discordId;
             String steamId;
 
-            sql = "SELECT discord_id, discrim, steam_id, discord_name FROM " + SQL_TableNames.SQL_PLAYER_INFO + " WHERE pend_reg = true;";
+            sql = "SELECT discord_id, discrim, steam_id, discord_name FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE pend_reg = true;";
             prepSt = conn.prepareStatement(sql);
             rs = prepSt.executeQuery();
             while (rs.next()) {

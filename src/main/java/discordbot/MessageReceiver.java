@@ -115,6 +115,11 @@ public class MessageReceiver extends ListenerAdapter {
                 if (eventMsgStr.equals("!!steam pending")) {
                     SteamConnector.sendPendRegPlayers(event);
                 }
+
+                //!!send tourn invites
+                if (eventMsgStr.equals("!!send tourn invites")) {
+                    SendMessage.sendTournInvites(event);
+                }
             }
         }
 

@@ -2,10 +2,11 @@ package discordbot;
 
 import constants.BotMsgs;
 import constants.DiscordIds;
-import constants.SQL_TableNames;
+import constants.SQLTableNames;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.managers.GuildController;
 import sqlhandlers.MyDBConnection;
@@ -49,7 +50,7 @@ public class RegistrationHandler {
             ResultSet rs;
 
             //Check if discord_id is in player_info table. Update values if it is present. If not present, add to player_info.
-            sql = "SELECT * FROM " + SQL_TableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
+            sql = "SELECT * FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
             prepSt = conn.prepareStatement(sql);
             prepSt.setString(1, discordId);
             rs = prepSt.executeQuery();
@@ -60,7 +61,7 @@ public class RegistrationHandler {
                 rs.getString("steam_id");
                 if (!(rs.wasNull())) {
                     //steam id is linked, register player
-                    sql = "UPDATE " + SQL_TableNames.SQL_PLAYER_INFO + " SET discrim = ?, discord_name = ?, pend_reg = 0, role = 'registered' WHERE discord_id = ?;";
+                    sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET discrim = ?, discord_name = ?, pend_reg = 0, role = 'registered' WHERE discord_id = ?;";
                     prepSt = conn.prepareStatement(sql);
                     prepSt.setInt(1, discrim);
                     prepSt.setString(2, discordName);
@@ -70,7 +71,7 @@ public class RegistrationHandler {
                     }
 
                     //Check if player_id is in tourn_players table, if not add to tourn_players
-                    sql = "SELECT * FROM " + SQL_TableNames.SQL_TOURN_PLAYERS + " WHERE player_id = ?;";
+                    sql = "SELECT * FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE player_id = ?;";
                     prepSt = conn.prepareStatement(sql);
                     prepSt.setInt(1, player_id);
                     rs = prepSt.executeQuery();
@@ -78,13 +79,13 @@ public class RegistrationHandler {
                         event.getChannel().sendMessage(BotMsgs.alreadyReg(event)).queue();
                     } else {
                         //find highest order_reg
-                        sql = "SELECT order_reg FROM " + SQL_TableNames.SQL_TOURN_PLAYERS + " ORDER BY order_reg DESC;";
+                        sql = "SELECT order_reg FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " ORDER BY order_reg DESC;";
                         rs = prepSt.executeQuery(sql);
                         rs.next();
                         int newOrderReg = rs.getInt("order_reg") + 1;
 
                         //insert into tourn_players
-                        sql = "INSERT INTO " + SQL_TableNames.SQL_TOURN_PLAYERS + " (player_id, order_reg) VALUES (?, ?);";
+                        sql = "INSERT INTO " + SQLTableNames.SQL_TOURN_PLAYERS + " (player_id, order_reg) VALUES (?, ?);";
                         prepSt = conn.prepareStatement(sql);
                         prepSt.setInt(1, player_id);
                         prepSt.setInt(2, newOrderReg);
@@ -94,7 +95,7 @@ public class RegistrationHandler {
                             GuildController guildCont = new GuildController(njal);
                             guildCont.addSingleRoleToMember(member, regRole).queue();
 
-                            member.getUser().openPrivateChannel().complete().sendMessage(BotMsgs.playerRegistered(discordName)).queue();
+                            SendMessage.sendDirectMessage(member.getUser(), BotMsgs.playerRegistered(discordName));
                             SendMessage.updateRegPlayerMsg();
 
                             //notify super-admin channel
@@ -105,7 +106,7 @@ public class RegistrationHandler {
                     }
                 } else {
                     //steam_id not linked, pend reg
-                    sql = "UPDATE " + SQL_TableNames.SQL_PLAYER_INFO + " SET discrim = ?, discord_name = ?, pend_reg = 1, role = NULL WHERE discord_id = ?;";
+                    sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET discrim = ?, discord_name = ?, pend_reg = 1, role = NULL WHERE discord_id = ?;";
                     prepSt = conn.prepareStatement(sql);
                     prepSt.setInt(1, discrim);
                     prepSt.setString(2, discordName);
@@ -120,7 +121,7 @@ public class RegistrationHandler {
                 //find empty player_id
                 int newPlayerId = 0;
                 while (true) {
-                    sql = "SELECT player_id from " + SQL_TableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
+                    sql = "SELECT player_id from " + SQLTableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
                     prepSt = conn.prepareStatement(sql);
                     prepSt.setInt(1, newPlayerId);
                     rs = prepSt.executeQuery();
@@ -132,7 +133,7 @@ public class RegistrationHandler {
                 }
 
                 //insert new player into player_info
-                sql = "INSERT INTO " + SQL_TableNames.SQL_PLAYER_INFO + " (player_id, discord_id, discrim, discord_name) VALUES (?, ?, ?, ?);";
+                sql = "INSERT INTO " + SQLTableNames.SQL_PLAYER_INFO + " (player_id, discord_id, discrim, discord_name) VALUES (?, ?, ?, ?);";
                 prepSt = conn.prepareStatement(sql);
                 prepSt.setInt(1, newPlayerId);
                 prepSt.setString(2, discordId);
@@ -191,31 +192,31 @@ public class RegistrationHandler {
             String sql;
 
             //remove from tourn_players
-            sql = "SELECT * FROM " + SQL_TableNames.SQL_TOURN_PLAYERS + " WHERE player_id = ?;";
+            sql = "SELECT * FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE player_id = ?;";
             prepSt = conn.prepareStatement(sql);
             prepSt.setInt(1, playerId);
             rs = prepSt.executeQuery();
             if (rs.next()) {
                 int orderReg = rs.getInt("order_reg");
-                sql = "DELETE FROM " + SQL_TableNames.SQL_TOURN_PLAYERS + " WHERE player_id = ?;";
+                sql = "DELETE FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE player_id = ?;";
                 prepSt = conn.prepareStatement(sql);
                 prepSt.setInt(1, playerId);
                 prepSt.execute();
 
                 //adjust the higher order_reg's
-                sql = "SELECT order_reg FROM " + SQL_TableNames.SQL_TOURN_PLAYERS + " WHERE order_reg = ?;";
+                sql = "SELECT order_reg FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE order_reg = ?;";
                 prepSt = conn.prepareStatement(sql);
                 prepSt.setInt(1, (orderReg + 1));
                 rs = prepSt.executeQuery();
                 while (rs.next()) {
-                    sql = "UPDATE " + SQL_TableNames.SQL_TOURN_PLAYERS + " SET order_reg = ? WHERE order_reg = ?;";
+                    sql = "UPDATE " + SQLTableNames.SQL_TOURN_PLAYERS + " SET order_reg = ? WHERE order_reg = ?;";
                     prepSt = conn.prepareStatement(sql);
                     prepSt.setInt(1, orderReg);
                     prepSt.setInt(2, orderReg + 1);
                     prepSt.executeUpdate();
 
                     orderReg++;
-                    sql = "SELECT order_reg FROM " + SQL_TableNames.SQL_TOURN_PLAYERS + " WHERE order_reg = ?;";
+                    sql = "SELECT order_reg FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE order_reg = ?;";
                     prepSt = conn.prepareStatement(sql);
                     prepSt.setInt(1, (orderReg + 1));
                     rs = prepSt.executeQuery();
@@ -223,7 +224,7 @@ public class RegistrationHandler {
             }
 
             //update player_info
-            sql = "SELECT * FROM " + SQL_TableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
+            sql = "SELECT * FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
             prepSt = conn.prepareStatement(sql);
             prepSt.setInt(1, playerId);
             rs = prepSt.executeQuery();
@@ -235,7 +236,7 @@ public class RegistrationHandler {
                 }
 
                 if (pend_reg == 1 || role.equals("registered")) {
-                    sql = "UPDATE " + SQL_TableNames.SQL_PLAYER_INFO + " SET pend_reg = FALSE, role = null WHERE player_id = ?;";
+                    sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET pend_reg = FALSE, role = null WHERE player_id = ?;";
                     prepSt = conn.prepareStatement(sql);
                     prepSt.setInt(1, playerId);
                     if (prepSt.executeUpdate() > 0) {
@@ -243,7 +244,8 @@ public class RegistrationHandler {
 
                         //dm the player that got unregistered, if this wasn't called by him
                         if (!(event.getAuthor().getId().equals(discordId))) {
-                            njal.getMemberById(discordId).getUser().openPrivateChannel().complete().sendMessage(BotMsgs.dmUnregPlayer).queue();
+                            User user = njal.getMemberById(discordId).getUser();
+                            SendMessage.sendDirectMessage(user, BotMsgs.dmUnregPlayer);
                         }
                     }
                 } else {
@@ -255,7 +257,7 @@ public class RegistrationHandler {
                 //find empty player_id
                 int newPlayerId = 0;
                 while (true) {
-                    sql = "SELECT player_id from " + SQL_TableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
+                    sql = "SELECT player_id from " + SQLTableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
                     prepSt = conn.prepareStatement(sql);
                     prepSt.setInt(1, newPlayerId);
                     rs = prepSt.executeQuery();
@@ -267,7 +269,7 @@ public class RegistrationHandler {
                 }
 
                 //insert new player into player_info
-                sql = "INSERT INTO " + SQL_TableNames.SQL_PLAYER_INFO + " (player_id, discord_id, discrim, discord_name, pend_reg) VALUES (?, ?, ?, ?, 0);";
+                sql = "INSERT INTO " + SQLTableNames.SQL_PLAYER_INFO + " (player_id, discord_id, discrim, discord_name, pend_reg) VALUES (?, ?, ?, ?, 0);";
                 prepSt = conn.prepareStatement(sql);
                 prepSt.setInt(1, playerId);
                 prepSt.setString(2, discordId);
@@ -316,9 +318,9 @@ public class RegistrationHandler {
             event.getChannel().sendMessage(BotMsgs.regQueueChan(event)).queue();
         }
         //send direct message
-        String discordName = njal.getMemberById(discordId).getUser().getName();
-        njal.getMemberById(discordId).getUser().openPrivateChannel().complete().sendMessage(BotMsgs.regQueueDM(discordName)).queue();
+        User user = njal.getMemberById(discordId).getUser();
+        SendMessage.sendDirectMessage(user, BotMsgs.regQueueDM(user.getName()));
         //notify super-admin
-        njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.regQueueSuperAdmin(discordName)).queue();
+        njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.regQueueSuperAdmin(user.getName())).queue();
     }
 }

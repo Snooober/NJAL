@@ -1,12 +1,22 @@
 package discordbot;
 
+import constants.BotMsgs;
 import constants.DiscordIds;
-import constants.SQL_TableNames;
+import constants.SQLTableNames;
+import helpers.CSVHelper;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import sqlhandlers.MyDBConnection;
+import sqlhandlers.PlayerLookup;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,12 +26,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import static discordbot.DiscordBot.njal;
+
 public class SendMessage {
+    public static void sendDirectMessage(User user, String message) {
+        user.openPrivateChannel().complete().sendMessage(message).queue();
+        System.out.println("Sent direct message to " + user.getName() + ": " + message);
+    }
+
     public static synchronized void updateRegPlayerMsg() {
         List<String> messageList = regPlayerMsg();
         Iterator<String> messageListIt = messageList.iterator();
 
-        TextChannel playerListChan = DiscordBot.njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL);
+        TextChannel playerListChan = njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL);
         MessageHistory msgHist = playerListChan.getHistoryAfter(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL, 100).complete();
         List<Message> discordPlayerListMessages = msgHist.getRetrievedHistory();
 
@@ -33,27 +50,117 @@ public class SendMessage {
             //edit existing messages
             for (int i = numMsgExist - 1; i >= 0; i--) {
                 String msgId = discordPlayerListMessages.get(i).getId();
-                DiscordBot.njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).editMessageById(msgId, messageListIt.next()).queue();
+                njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).editMessageById(msgId, messageListIt.next()).queue();
             }
             //send new messages
             for (int i = 0; i < msgToSendMinusExist; i++) {
-                DiscordBot.njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).sendMessage(messageListIt.next()).queue();
+                njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).sendMessage(messageListIt.next()).queue();
             }
         } else {
             //edit existing messages
             for (int i = numMsgExist - 1; i >= numMsgExist - numMsgToSend; i--) {
                 String msgId = discordPlayerListMessages.get(i).getId();
-                DiscordBot.njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).editMessageById(msgId, messageListIt.next()).queue();
+                njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).editMessageById(msgId, messageListIt.next()).queue();
             }
             //delete remaining messages
             for (int i = (numMsgExist - numMsgToSend) - 1; i >= 0; i--) {
                 String msgId = discordPlayerListMessages.get(i).getId();
-                DiscordBot.njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).deleteMessageById(msgId).queue();
+                njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).deleteMessageById(msgId).queue();
+            }
+        }
+    }
+
+    private static List<String> parseTournLinks(MessageReceivedEvent event) {
+        List<String> tournLinks = new ArrayList<>();
+        try {
+            FileInputStream fis = new FileInputStream("tourn_links.csv");
+            Reader reader = new InputStreamReader(fis, StandardCharsets.UTF_8);
+
+            List<String> excelRow;
+            while ((excelRow = CSVHelper.parseLine(reader)) != null) {
+                tournLinks.add(excelRow.get(0));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            event.getChannel().sendMessage(BotMsgs.tournLinksNotFound).queue();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return tournLinks;
+    }
+
+    public static void sendTournInvites(MessageReceivedEvent event) {
+        Connection conn = null;
+        PreparedStatement prepSt = null;
+
+        try {
+            conn = MyDBConnection.getConnection();
+            String sql;
+            ResultSet rs;
+
+            List<String> tournLinks = parseTournLinks(event);
+
+            sql = "SELECT player_id FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " ORDER BY order_reg ASC;";
+            prepSt = conn.prepareStatement(sql);
+            rs = prepSt.executeQuery();
+            List<Integer> regPlayerIds = new ArrayList<>();
+            while (rs.next()) {
+                regPlayerIds.add(rs.getInt("player_id"));
+            }
+
+            if (regPlayerIds.size() > tournLinks.size()) {
+                //not enough tournament invite links
+                event.getChannel().sendMessage(BotMsgs.notEnoughTournLinks(tournLinks.size(), regPlayerIds.size())).queue();
+                return;
+            }
+
+            Iterator<Integer> regPlayersIdIt = regPlayerIds.iterator();
+            Iterator<String> tournLinksIt = tournLinks.iterator();
+            int playerCount = 0;
+            while (regPlayersIdIt.hasNext() && tournLinksIt.hasNext() && playerCount < 64) {
+                int playerId = regPlayersIdIt.next();
+                String discordId = PlayerLookup.getDiscordId(playerId);
+                User user = njal.getMemberById(discordId).getUser();
+                if (user == null) {
+                    //user left server, skip this user
+                    continue;
+                }
+                String tournLink = tournLinksIt.next();
+                sendDirectMessage(user, BotMsgs.tournLinkDM(tournLink));
+
+                sql = "UPDATE " + SQLTableNames.SQL_TOURN_PLAYERS + " SET invite_link = ? WHERE player_id = ?;";
+                prepSt = conn.prepareStatement(sql);
+                prepSt.setString(1, tournLink);
+                prepSt.setInt(2, playerId);
+                prepSt.executeUpdate();
+
+                playerCount++;
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (prepSt != null) {
+                    prepSt.close();
+                }
+            } catch (SQLException se) {
+                //do nothing
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
             }
         }
     }
 
     private static List<String> regPlayerMsg() {
+        //TODO fix this to use listMessageBuilder()
         Connection conn = null;
         PreparedStatement prepSt = null;
         List<String> fullMessageArray = new ArrayList<>();
@@ -76,7 +183,7 @@ public class SendMessage {
             discrimCol.add("Discriminator");
             steamProfCol.add("`Steam Profile`");
 
-            sql_tournPlayers = "SELECT player_id, order_reg FROM " + SQL_TableNames.SQL_TOURN_PLAYERS + " ORDER BY order_reg ASC;";
+            sql_tournPlayers = "SELECT player_id, order_reg FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " ORDER BY order_reg ASC;";
             prepSt = conn.prepareStatement(sql_tournPlayers);
             rs_tournPlayers = prepSt.executeQuery();
 
@@ -84,7 +191,7 @@ public class SendMessage {
                 String orderReg = Integer.toString(rs_tournPlayers.getInt("order_reg"));
                 int playerId = rs_tournPlayers.getInt("player_id");
 
-                sql_playerInfo = "SELECT player_id, discrim, steam_id, discord_name FROM " + SQL_TableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
+                sql_playerInfo = "SELECT player_id, discrim, steam_id, discord_name FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
                 prepSt = conn.prepareStatement(sql_playerInfo);
                 prepSt.setInt(1, playerId);
                 rs_playerInfo = prepSt.executeQuery();

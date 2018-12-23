@@ -16,6 +16,15 @@ public class BotMsgs {
     public static String steamIdLinkedNotPendReg = "Steam ID has been linked, but player is not pending registration.";
     public static String steamIdLinkedMultiple = "Steam ID was updated for more than one discord account. See player_info table.";
     public static String steamIdProblemLinking = "There was a problem linking the steam ID.";
+    public static String tournLinksNotFound = "\"tourn_links.csv\" was not found.";
+
+    public static String tournLinkDM(String tournLink) {
+        return "Here is your tournament invite link: " + tournLink;
+    }
+
+    public static String notEnoughTournLinks(int numLinks, int numPlayers) {
+        return "Not enough tournament invite links. Found " + numLinks + " links for " + numPlayers + " players.";
+    }
 
     public static String wasNotReg(String discordId) {
         String name = njal.getMemberById(discordId).getUser().getName();
