@@ -35,8 +35,11 @@ public class DiscordBot extends ListenerAdapter {
 
         try {
             rossBot = builder.build();
+            rossBot.awaitReady();
             init();
         } catch (LoginException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
