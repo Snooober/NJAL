@@ -7,9 +7,14 @@ import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.guild.GuildBanEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.user.update.GenericUserUpdateEvent;
+import net.dv8tion.jda.core.events.user.update.UserUpdateDiscriminatorEvent;
+import net.dv8tion.jda.core.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.core.managers.GuildController;
 import sqlhandlers.MyDBConnection;
 import sqlhandlers.PlayerLookup;
@@ -53,10 +58,7 @@ class RegistrationHandler {
             ResultSet rs;
 
             //Check if discord_id is in player_info table. Update values if it is present. If not present, add to player_info.
-            sql = "SELECT * FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
-            prepSt = conn.prepareStatement(sql);
-            prepSt.setString(1, discordId);
-            rs = prepSt.executeQuery();
+            rs = getPlayerInfoFromDB(discordId, conn);
             if (rs.next()) {
                 int player_id = rs.getInt("player_id");
 
@@ -102,7 +104,7 @@ class RegistrationHandler {
                         SendMessage.updateRegPlayerMsg();
 
                         //notify super-admin channel
-                        njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.playerRegistered(discordName)).queue();
+                        njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.playerRegistered(discordName)).queue();
                     }
                 } else {
                     //steam_id not linked, pend reg
@@ -226,7 +228,7 @@ class RegistrationHandler {
                                 SendMessage.sendDirectMessage(user, BotMsgs.dmUnregPlayer);
                             }
                         } else {
-                            njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.playerLeftGuildAndUnreg(discordName)).queue();
+                            njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.playerLeftGuildAndUnreg(discordName)).queue();
                         }
                     }
                 } else if (event != null) {
@@ -348,6 +350,91 @@ class RegistrationHandler {
         }
     }
 
+    private static ResultSet getPlayerInfoFromDB(String discordId, Connection conn) throws SQLException {
+        PreparedStatement prepSt;
+        String sql;
+        ResultSet rs;
+
+        sql = "SELECT * FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
+        prepSt = conn.prepareStatement(sql);
+        prepSt.setString(1, discordId);
+        rs = prepSt.executeQuery();
+
+        prepSt.close();
+
+        return rs;
+    }
+
+    public static synchronized void updatePlayerInfo(Event event) {
+        Connection conn = null;
+        PreparedStatement prepSt = null;
+
+        try {
+            conn = MyDBConnection.getConnection();
+            String sql;
+            ResultSet rs;
+
+            User user;
+            if (event instanceof GuildMemberJoinEvent) {
+                user = ((GuildMemberJoinEvent) event).getUser();
+            } else {
+                user = ((GenericUserUpdateEvent) event).getUser();
+            }
+
+            String discordId = user.getId();
+            int discrim = Integer.parseInt(user.getDiscriminator());
+            String discordName = user.getName();
+
+            //check if discord_id is in player_info table
+            rs = getPlayerInfoFromDB(discordId, conn);
+            if (rs.next()) {
+                //notify ross-log
+                int oldDiscrim = rs.getInt("discrim");
+                String oldDiscordName = rs.getString("discord_name");
+                if (event instanceof GuildMemberJoinEvent) {
+                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.memberJoinNewInfo(oldDiscordName, oldDiscrim, discordName, discrim)).queue();
+                } else if (event instanceof UserUpdateNameEvent) {
+                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.userUpdatedName(((UserUpdateNameEvent) event).getOldName(), discordName)).queue();
+                } else if (event instanceof UserUpdateDiscriminatorEvent) {
+                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.userUpdatedDiscrim((((UserUpdateDiscriminatorEvent) event).getOldDiscriminator()), discrim)).queue();
+                }
+
+                //update player_info
+                sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET discrim = ?, discord_name = ?;";
+                prepSt = conn.prepareStatement(sql);
+                prepSt.setInt(1, discrim);
+                prepSt.setString(2, discordName);
+                prepSt.executeUpdate();
+            }
+
+            rs.close();
+            if (prepSt != null) {
+                prepSt.close();
+            }
+            conn.close();
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (prepSt != null) {
+                    prepSt.close();
+                }
+            } catch (SQLException se) {
+                //do nothing
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+
+    }
+
     private static void removeFromTournPlayers(int playerId, Connection conn) throws SQLException {
         String sql;
         PreparedStatement prepSt;
@@ -396,7 +483,7 @@ class RegistrationHandler {
         //send direct message
         User user = njal.getMemberById(discordId).getUser();
         SendMessage.sendDirectMessage(user, BotMsgs.regQueueDM(user.getName()));
-        //notify super-admin
-        njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.regQueueSuperAdmin(user.getName())).queue();
+        //notify ross-log
+        njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.regQueueSuperAdmin(user.getName())).queue();
     }
 }

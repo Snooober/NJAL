@@ -30,6 +30,8 @@ public class DiscordBot extends ListenerAdapter {
         JDABuilder builder = new JDABuilder(AccountType.BOT);
         builder.setToken(Properties.getProps().token);
         builder.addEventListener(new MessageReceiver());
+        builder.addEventListener(new LeaveServerListener());
+        builder.addEventListener(new UpdateInfoListener());
 
         try {
             rossBot = builder.build();

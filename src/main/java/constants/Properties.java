@@ -5,14 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Properties {
-    private static Properties instance;
+    private final static Properties instance = new Properties();
     public String dbUrl;
     public String user;
     public String pass;
     public String token;
 
     private Properties() {
-        instance = new Properties();
         instance.setProperties();
     }
 

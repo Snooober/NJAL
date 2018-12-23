@@ -25,6 +25,18 @@ public class BotMsgs {
         unregisterAllConfirm[1] = "Enter `!!confirm` to confirm unregistering all players.";
     }
 
+    public static String memberJoinNewInfo(String oldName, int oldDiscrim, String newName, int newDiscrim) {
+        return oldName + " (#" + oldDiscrim + ") has rejoined the server with a new name. Their new name is " + newName + " (#" + newDiscrim + ").";
+    }
+
+    public static String userUpdatedName(String oldName, String newName) {
+        return oldName + " changed their name to " + newName + ".";
+    }
+
+    public static String userUpdatedDiscrim(String oldDiscrim, int newDiscrim) {
+        return oldDiscrim + " changed their discriminator to " + newDiscrim + ".";
+    }
+
     public static String playerLeftGuildAndUnreg(String discordName) {
         return discordName + " has left (or been banned from) NJAL and has been unregistered from the tournament.";
     }

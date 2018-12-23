@@ -95,15 +95,15 @@ class MessageReceiver extends ListenerAdapter {
                 //!!lockreg
                 if (eventMsgStr.equals("!!reg lock")) {
                     RegistrationHandler.lockReg();
-                    event.getChannel().sendMessage(BotMsgs.adminLockedReg).queue();
-                    njal.getTextChannelById(DiscordIds.ChannelIds.STANDINGS_REPORT_CHANNEL).sendMessage(BotMsgs.adminLockedReg).queue();
+                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.adminLockedReg).queue();
+                    //TODO edit message in register-here channel
                 }
 
                 //!!unlock reg
                 if (eventMsgStr.equals("!!reg unlock")) {
                     RegistrationHandler.unlockReg();
-                    event.getChannel().sendMessage(BotMsgs.adminUnlockedReg).queue();
-                    njal.getTextChannelById(DiscordIds.ChannelIds.STANDINGS_REPORT_CHANNEL).sendMessage(BotMsgs.adminUnlockedReg).queue();
+                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.adminUnlockedReg).queue();
+                    //TODO edit message in register-here channel
                 }
 
                 //!!steam connect [discord id][steam id]

@@ -3,13 +3,11 @@ package discordbot;
 import org.apache.log4j.BasicConfigurator;
 
 /*
- * TODO unregister player when they leave server
  * TODO add draft me system
  * TODO automate more:
  *      notify players before tourn starts (30 minutes/15 minutes?)
  *      handle unregistration automatically (including backing up data)
  *      handle reg lock/unlock
- * TODO update player info (triggered by events)
  * TODO review logging
  */
 
