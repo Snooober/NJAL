@@ -312,6 +312,56 @@ public class RegistrationHandler {
         }
     }
 
+    public static synchronized void unregisterAllPlayers() {
+        Connection conn = null;
+        PreparedStatement prepSt = null;
+
+        try {
+            conn = MyDBConnection.getConnection();
+            String sql;
+
+            //tourn_players
+            sql = "DELETE FROM " + SQLTableNames.SQL_TOURN_PLAYERS + ";";
+            prepSt = conn.prepareStatement(sql);
+            prepSt.executeUpdate();
+
+            //player_info
+            sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET pend_reg = false, role = null;";
+            prepSt.executeUpdate(sql);
+
+            //make blank copy of "Registered" role effectively removing all members from the role
+            GuildController gc = new GuildController(njal);
+            Role reg = njal.getRolesByName("Registered", true).iterator().next();
+            gc.createCopyOfRole(reg).queue();
+            reg.delete().queue();
+
+            //update player-list channel
+            SendMessage.updateRegPlayerMsg();
+
+            prepSt.close();
+            conn.close();
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (prepSt != null) {
+                    prepSt.close();
+                }
+            } catch (SQLException se) {
+                //do nothing
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+    }
+
     private static void sendRegQMsgs(MessageReceivedEvent event, String discordId) {
         //send channel message
         if (!event.getMessage().getChannelType().equals(ChannelType.PRIVATE)) {

@@ -17,6 +17,13 @@ public class BotMsgs {
     public static String steamIdLinkedMultiple = "Steam ID was updated for more than one discord account. See player_info table.";
     public static String steamIdProblemLinking = "There was a problem linking the steam ID.";
     public static String tournLinksNotFound = "\"tourn_links.csv\" was not found.";
+    public static String unregisteredAllPlayers = "All players have been unregistered.";
+    public static String[] unregisterAllConfirm = new String[2];
+
+    static {
+        unregisterAllConfirm[0] = "Are you sure you want to unregister all players?";
+        unregisterAllConfirm[1] = "Enter `!!confirm` to confirm unregistering all players.";
+    }
 
     public static String tournLinkDM(String tournLink) {
         return "Here is your tournament invite link: " + tournLink;

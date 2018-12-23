@@ -9,11 +9,14 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static discordbot.DiscordBot.njal;
 
 public class MessageReceiver extends ListenerAdapter {
+    private boolean unregisterAllConfirm = false;
 
     private boolean isAdmin(MessageReceivedEvent event) {
         List<Role> memberRoles = event.getMember().getRoles();
@@ -85,7 +88,7 @@ public class MessageReceiver extends ListenerAdapter {
             if (isAdmin(event)) {
                 //!!unregister [discord id]
                 if (eventMsgStr.matches("!!unregister\\s\\d*")) {
-                    String discordId = eventMsgStr.split("\\s", 2)[1];
+                    String discordId = eventMsgStr.split("\\s")[1];
                     RegistrationHandler.unregisterPlayer(event, discordId);
                 }
 
@@ -105,7 +108,7 @@ public class MessageReceiver extends ListenerAdapter {
 
                 //!!steam connect [discord id][steam id]
                 if (eventMsgStr.matches("!!steam\\sconnect\\s\\d+\\s[\\w:]+")) {
-                    String[] messageArray = eventMsgStr.split("\\s", 4);
+                    String[] messageArray = eventMsgStr.split("\\s");
                     String discordId = messageArray[2];
                     String steamId = messageArray[3];
                     SteamConnector.connectSteamId(event, discordId, steamId);
@@ -117,8 +120,41 @@ public class MessageReceiver extends ListenerAdapter {
                 }
 
                 //!!send tourn invites
+                //TODO add confirmation
                 if (eventMsgStr.equals("!!send tourn invites")) {
                     SendMessage.sendTournInvites(event);
+                }
+
+                //!!send msg registered [message]
+                //TODO add confirmation
+                if (eventMsgStr.matches("!!send\\smsg\\sregistered\\s.*")) {
+                    String message = eventMsgStr.split("\\s", 4)[3];
+                    SendMessage.directMsgRegPlayers(message);
+                }
+
+                //!!unregister all
+                if (eventMsgStr.equals("!!unregister all")) {
+                    unregisterAllConfirm = true;
+                    event.getChannel().sendMessage(BotMsgs.unregisterAllConfirm[0]).queue();
+                    event.getChannel().sendMessage(BotMsgs.unregisterAllConfirm[1]).queue();
+
+                    class ConfirmFalseTask extends TimerTask {
+                        @Override
+                        public void run() {
+                            unregisterAllConfirm = false;
+                        }
+                    }
+                    Timer timer = new Timer();
+                    timer.schedule(new ConfirmFalseTask(), 6 * 1000);
+                }
+
+                //!!confirm
+                if (eventMsgStr.equals("!!confirm")) {
+                    if (unregisterAllConfirm) {
+                        RegistrationHandler.unregisterAllPlayers();
+                        event.getChannel().sendMessage(BotMsgs.unregisteredAllPlayers).queue();
+                        unregisterAllConfirm = false;
+                    }
                 }
             }
         }

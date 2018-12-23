@@ -34,6 +34,56 @@ public class SendMessage {
         System.out.println("Sent direct message to " + user.getName() + ": " + message);
     }
 
+    public static void directMsgRegPlayers(String message) {
+        Connection conn = null;
+        PreparedStatement prepSt = null;
+
+        try {
+            conn = MyDBConnection.getConnection();
+            String sql;
+            ResultSet rs;
+
+            sql = "SELECT discord_id, role FROM " + SQLTableNames.SQL_PLAYER_INFO + ";";
+            prepSt = conn.prepareStatement(sql);
+            rs = prepSt.executeQuery();
+
+            while (rs.next()) {
+                String discordId = rs.getString("discord_id");
+                String role = rs.getString("role");
+
+                if (role != null) {
+                    if (role.equals("registered")) {
+                        User user = njal.getMemberById(discordId).getUser();
+                        sendDirectMessage(user, message);
+                    }
+                }
+            }
+
+            rs.close();
+            prepSt.close();
+            conn.close();
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (prepSt != null) {
+                    prepSt.close();
+                }
+            } catch (SQLException se) {
+                //do nothing
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+    }
+
     public static synchronized void updateRegPlayerMsg() {
         List<String> messageList = regPlayerMsg();
         Iterator<String> messageListIt = messageList.iterator();
