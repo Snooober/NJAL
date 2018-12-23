@@ -159,7 +159,6 @@ class MessageReceiver extends ListenerAdapter {
             }
         }
 
-
         clearMsgs(event);
     }
 }
