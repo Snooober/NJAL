@@ -8,7 +8,6 @@ public class LeaveServerListener extends ListenerAdapter {
     @Override
     public void onGuildBan(GuildBanEvent event) {
         RegistrationHandler.unregisterPlayer(event);
-
     }
 
     @Override

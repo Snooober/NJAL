@@ -195,6 +195,7 @@ class RegistrationHandler {
             }
             return;
         }
+
         int discrim = Integer.parseInt(userToUnreg.getDiscriminator());
         String discordName = userToUnreg.getName();
 
