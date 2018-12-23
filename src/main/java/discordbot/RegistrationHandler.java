@@ -58,7 +58,10 @@ class RegistrationHandler {
             ResultSet rs;
 
             //Check if discord_id is in player_info table. Update values if it is present. If not present, add to player_info.
-            rs = getPlayerInfoFromDB(discordId, conn);
+            sql = "SELECT * FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
+            prepSt = conn.prepareStatement(sql);
+            prepSt.setString(1, discordId);
+            rs = prepSt.executeQuery();
             if (rs.next()) {
                 int player_id = rs.getInt("player_id");
 
@@ -350,21 +353,6 @@ class RegistrationHandler {
         }
     }
 
-    private static ResultSet getPlayerInfoFromDB(String discordId, Connection conn) throws SQLException {
-        PreparedStatement prepSt;
-        String sql;
-        ResultSet rs;
-
-        sql = "SELECT * FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
-        prepSt = conn.prepareStatement(sql);
-        prepSt.setString(1, discordId);
-        rs = prepSt.executeQuery();
-
-        prepSt.close();
-
-        return rs;
-    }
-
     public static synchronized void updatePlayerInfo(Event event) {
         Connection conn = null;
         PreparedStatement prepSt = null;
@@ -386,7 +374,10 @@ class RegistrationHandler {
             String discordName = user.getName();
 
             //check if discord_id is in player_info table
-            rs = getPlayerInfoFromDB(discordId, conn);
+            sql = "SELECT * FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE discord_id = ?;";
+            prepSt = conn.prepareStatement(sql);
+            prepSt.setString(1, discordId);
+            rs = prepSt.executeQuery();
             if (rs.next()) {
                 //notify ross-log
                 int oldDiscrim = rs.getInt("discrim");
