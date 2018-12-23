@@ -19,7 +19,6 @@ public class Properties {
         return instance;
     }
 
-
     private void setProperties() {
         try {
             InputStream in = getClass().getClassLoader().getResourceAsStream("config.properties");
