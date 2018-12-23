@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static discordbot.DiscordBot.njal;
+
 class SteamConnector {
     public static void connectSteamId(MessageReceivedEvent event, String discordId, String steamId) {
         Connection conn = null;
@@ -62,6 +64,7 @@ class SteamConnector {
                 if (pendReg) {
                     event.getChannel().sendMessage(BotMsgs.steamIdLinkedAttemptReg).queue();
                     RegistrationHandler.registerPlayer(event, discordName, discordId, discrim);
+                    njal.getMemberById(discordId).getUser().openPrivateChannel().complete().sendMessage(BotMsgs.steamConnectedAndRegDM).queue();
                 } else {
                     event.getChannel().sendMessage(BotMsgs.steamIdLinkedNotPendReg).queue();
                 }

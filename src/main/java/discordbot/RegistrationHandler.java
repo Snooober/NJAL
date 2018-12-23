@@ -103,7 +103,7 @@ class RegistrationHandler {
                         GuildController guildCont = new GuildController(njal);
                         guildCont.addSingleRoleToMember(member, regRole).queue();
 
-                        SendMessage.sendDirectMessage(member.getUser(), BotMsgs.playerRegistered(discordName));
+                        event.getChannel().sendMessage(BotMsgs.playerRegistered(discordName)).queue();
                         SendMessage.updateRegPlayerMsg();
 
                         //notify super-admin channel

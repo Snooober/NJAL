@@ -18,6 +18,7 @@ public class BotMsgs {
     public static final String steamIdProblemLinking = "There was a problem linking the steam ID.";
     public static final String tournLinksNotFound = "\"tourn_links.csv\" was not found.";
     public static final String unregisteredAllPlayers = "All players have been unregistered.";
+    public static final String steamConnectedAndRegDM = "Your Steam ID has been linked and you have been registered for the tournament!";
     public static final String[] unregisterAllConfirm = new String[2];
 
     static {
