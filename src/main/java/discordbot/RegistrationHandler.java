@@ -7,6 +7,8 @@ import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.guild.GuildBanEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.managers.GuildController;
 import sqlhandlers.MyDBConnection;
@@ -18,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static discordbot.DiscordBot.njal;
+import static discordbot.DiscordBot.rossBot;
 
 class RegistrationHandler {
     private static boolean regOpen = true;
@@ -163,6 +166,14 @@ class RegistrationHandler {
         }
     }
 
+    public static synchronized void unregisterPlayer(GuildBanEvent event) {
+        unregisterPlayer(null, event.getUser().getId());
+    }
+
+    public static synchronized void unregisterPlayer(GuildMemberLeaveEvent event) {
+        unregisterPlayer(null, event.getUser().getId());
+    }
+
     public static synchronized void unregisterPlayer(MessageReceivedEvent event) {
         unregisterPlayer(event, event.getAuthor().getId());
     }
@@ -171,51 +182,23 @@ class RegistrationHandler {
         Connection conn = null;
         PreparedStatement prepSt = null;
 
-        Member memberToUnreg = njal.getMemberById(discordId);
+        User userToUnreg = rossBot.getUserById(discordId);
         int playerId = PlayerLookup.getPlayerId(discordId);
         if (playerId == -1) {
-            event.getChannel().sendMessage(BotMsgs.wasNotReg(discordId)).queue();
+            if (event != null) {
+                event.getChannel().sendMessage(BotMsgs.wasNotReg(discordId)).queue();
+            }
             return;
         }
-        int discrim = Integer.parseInt(memberToUnreg.getUser().getDiscriminator());
-        String discordName = memberToUnreg.getUser().getName();
+        int discrim = Integer.parseInt(userToUnreg.getDiscriminator());
+        String discordName = userToUnreg.getName();
 
         try {
             conn = MyDBConnection.getConnection();
             ResultSet rs;
             String sql;
 
-            //remove from tourn_players
-            sql = "SELECT * FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE player_id = ?;";
-            prepSt = conn.prepareStatement(sql);
-            prepSt.setInt(1, playerId);
-            rs = prepSt.executeQuery();
-            if (rs.next()) {
-                int orderReg = rs.getInt("order_reg");
-                sql = "DELETE FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE player_id = ?;";
-                prepSt = conn.prepareStatement(sql);
-                prepSt.setInt(1, playerId);
-                prepSt.execute();
-
-                //adjust the higher order_reg's
-                sql = "SELECT order_reg FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE order_reg = ?;";
-                prepSt = conn.prepareStatement(sql);
-                prepSt.setInt(1, (orderReg + 1));
-                rs = prepSt.executeQuery();
-                while (rs.next()) {
-                    sql = "UPDATE " + SQLTableNames.SQL_TOURN_PLAYERS + " SET order_reg = ? WHERE order_reg = ?;";
-                    prepSt = conn.prepareStatement(sql);
-                    prepSt.setInt(1, orderReg);
-                    prepSt.setInt(2, orderReg + 1);
-                    prepSt.executeUpdate();
-
-                    orderReg++;
-                    sql = "SELECT order_reg FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE order_reg = ?;";
-                    prepSt = conn.prepareStatement(sql);
-                    prepSt.setInt(1, (orderReg + 1));
-                    rs = prepSt.executeQuery();
-                }
-            }
+            removeFromTournPlayers(playerId, conn);
 
             //update player_info
             sql = "SELECT * FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
@@ -234,15 +217,19 @@ class RegistrationHandler {
                     prepSt = conn.prepareStatement(sql);
                     prepSt.setInt(1, playerId);
                     if (prepSt.executeUpdate() > 0) {
-                        event.getChannel().sendMessage(BotMsgs.playerUnreg(discordName)).queue();
+                        if (event != null) {
+                            event.getChannel().sendMessage(BotMsgs.playerUnreg(discordName)).queue();
 
-                        //dm the player that got unregistered, if this wasn't called by him
-                        if (!(event.getAuthor().getId().equals(discordId))) {
-                            User user = njal.getMemberById(discordId).getUser();
-                            SendMessage.sendDirectMessage(user, BotMsgs.dmUnregPlayer);
+                            //dm the player that got unregistered, if this wasn't called by him
+                            if (!(event.getAuthor().getId().equals(discordId))) {
+                                User user = njal.getMemberById(discordId).getUser();
+                                SendMessage.sendDirectMessage(user, BotMsgs.dmUnregPlayer);
+                            }
+                        } else {
+                            njal.getTextChannelById(DiscordIds.ChannelIds.SUPER_ADMIN_CHANNEL).sendMessage(BotMsgs.playerLeftGuildAndUnreg(discordName)).queue();
                         }
                     }
-                } else {
+                } else if (event != null) {
                     event.getChannel().sendMessage(BotMsgs.wasNotReg(discordId)).queue();
                 }
             } else {
@@ -270,13 +257,18 @@ class RegistrationHandler {
                 prepSt.setInt(3, discrim);
                 prepSt.setString(4, discordName);
 
-                event.getChannel().sendMessage(BotMsgs.wasNotReg(discordId)).queue();
+                if (event != null) {
+                    event.getChannel().sendMessage(BotMsgs.wasNotReg(discordId)).queue();
+                }
             }
 
             //Remove "Registered" discord role from player
             Role regRole = njal.getRolesByName("Registered", true).iterator().next();
             GuildController gc = new GuildController(njal);
-            gc.removeSingleRoleFromMember(memberToUnreg, regRole).queue();
+            Member memberToUnreg = njal.getMemberById(discordId);
+            if (memberToUnreg != null) {
+                gc.removeSingleRoleFromMember(memberToUnreg, regRole).queue();
+            }
 
             //update player-list channel
             SendMessage.updateRegPlayerMsg();
@@ -354,6 +346,46 @@ class RegistrationHandler {
                 se.printStackTrace();
             }
         }
+    }
+
+    private static void removeFromTournPlayers(int playerId, Connection conn) throws SQLException {
+        String sql;
+        PreparedStatement prepSt;
+        ResultSet rs;
+
+        sql = "SELECT * FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE player_id = ?;";
+        prepSt = conn.prepareStatement(sql);
+        prepSt.setInt(1, playerId);
+        rs = prepSt.executeQuery();
+        if (rs.next()) {
+            int orderReg = rs.getInt("order_reg");
+            sql = "DELETE FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE player_id = ?;";
+            prepSt = conn.prepareStatement(sql);
+            prepSt.setInt(1, playerId);
+            prepSt.execute();
+
+            //adjust the higher order_reg's
+            sql = "SELECT order_reg FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE order_reg = ?;";
+            prepSt = conn.prepareStatement(sql);
+            prepSt.setInt(1, (orderReg + 1));
+            rs = prepSt.executeQuery();
+            while (rs.next()) {
+                sql = "UPDATE " + SQLTableNames.SQL_TOURN_PLAYERS + " SET order_reg = ? WHERE order_reg = ?;";
+                prepSt = conn.prepareStatement(sql);
+                prepSt.setInt(1, orderReg);
+                prepSt.setInt(2, orderReg + 1);
+                prepSt.executeUpdate();
+
+                orderReg++;
+                sql = "SELECT order_reg FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " WHERE order_reg = ?;";
+                prepSt = conn.prepareStatement(sql);
+                prepSt.setInt(1, (orderReg + 1));
+                rs = prepSt.executeQuery();
+            }
+        }
+
+        rs.close();
+        prepSt.close();
     }
 
     private static void sendRegQMsgs(MessageReceivedEvent event, String discordId) {

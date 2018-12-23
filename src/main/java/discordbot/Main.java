@@ -9,7 +9,7 @@ import org.apache.log4j.BasicConfigurator;
  *      notify players before tourn starts (30 minutes/15 minutes?)
  *      handle unregistration automatically (including backing up data)
  *      handle reg lock/unlock
- * TODO add command to force updating player_info
+ * TODO update player info (triggered by events)
  * TODO review logging
  */
 

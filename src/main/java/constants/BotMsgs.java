@@ -25,6 +25,10 @@ public class BotMsgs {
         unregisterAllConfirm[1] = "Enter `!!confirm` to confirm unregistering all players.";
     }
 
+    public static String playerLeftGuildAndUnreg(String discordName) {
+        return discordName + " has left (or been banned from) NJAL and has been unregistered from the tournament.";
+    }
+
     public static String tournLinkDM(String tournLink) {
         return "Here is your tournament invite link: " + tournLink;
     }
