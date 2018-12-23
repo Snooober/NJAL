@@ -30,12 +30,8 @@ public class BotMsgs {
         return oldName + " (#" + oldDiscrim + ") has rejoined the server with a new name. Their new name is " + newName + " (#" + newDiscrim + ").";
     }
 
-    public static String userUpdatedName(String oldName, String newName) {
-        return oldName + " changed their name to " + newName + ".";
-    }
-
-    public static String userUpdatedDiscrim(String oldDiscrim, int newDiscrim) {
-        return oldDiscrim + " changed their discriminator to " + newDiscrim + ".";
+    public static String userChangedInfo(String oldName, int oldDiscrim, String newName, int newDiscrim) {
+        return oldName + " (#" + oldDiscrim + ") changed their name to " + newName + " (#" + newDiscrim + ").";
     }
 
     public static String playerLeftGuildAndUnreg(String discordName) {

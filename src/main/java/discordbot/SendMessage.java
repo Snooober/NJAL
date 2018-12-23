@@ -380,13 +380,13 @@ class SendMessage {
         String message = "``` ```";
         int numRows = columnsList.get(0).size();
         int rowIndex = 0;
-        String potentialMsg = "`";
+        String potentialMsg = "";
         while (rowIndex < numRows) {
             //for each row, iterate through columns and add entries to potentialMsg
             columnsListIt = columnsList.listIterator();
             while (columnsListIt.hasNext()) {
                 List<String> column = columnsListIt.next();
-                potentialMsg = potentialMsg.concat(column.get(rowIndex) + "` ");
+                potentialMsg = potentialMsg.concat("`" + column.get(rowIndex) + "` ");
             }
             potentialMsg = potentialMsg.trim();
 
@@ -401,7 +401,7 @@ class SendMessage {
 
             //end of row
             message = message.concat("\n");
-            potentialMsg = "`";
+            potentialMsg = "";
             rowIndex++;
         }
         fullMessageList.add(message);

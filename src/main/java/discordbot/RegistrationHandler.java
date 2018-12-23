@@ -383,19 +383,24 @@ class RegistrationHandler {
                 int oldDiscrim = rs.getInt("discrim");
                 String oldDiscordName = rs.getString("discord_name");
                 if (event instanceof GuildMemberJoinEvent) {
-                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.memberJoinNewInfo(oldDiscordName, oldDiscrim, discordName, discrim)).queue();
+                    if (!oldDiscordName.equals(discordName) || oldDiscrim != discrim) {
+                        njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.memberJoinNewInfo(oldDiscordName, oldDiscrim, discordName, discrim)).queue();
+                    }
                 } else if (event instanceof UserUpdateNameEvent) {
-                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.userUpdatedName(((UserUpdateNameEvent) event).getOldName(), discordName)).queue();
+                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.userChangedInfo(((UserUpdateNameEvent) event).getOldName(), oldDiscrim, discordName, discrim)).queue();
                 } else if (event instanceof UserUpdateDiscriminatorEvent) {
-                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.userUpdatedDiscrim((((UserUpdateDiscriminatorEvent) event).getOldDiscriminator()), discrim)).queue();
+                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.userChangedInfo(oldDiscordName, Integer.parseInt((((UserUpdateDiscriminatorEvent) event).getOldDiscriminator())), discordName, discrim)).queue();
                 }
 
                 //update player_info
-                sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET discrim = ?, discord_name = ?;";
+                sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET discrim = ?, discord_name = ? WHERE discord_id = ?;";
                 prepSt = conn.prepareStatement(sql);
                 prepSt.setInt(1, discrim);
                 prepSt.setString(2, discordName);
+                prepSt.setString(3, discordId);
                 prepSt.executeUpdate();
+
+                SendMessage.updateRegPlayerMsg();
             }
 
             rs.close();
