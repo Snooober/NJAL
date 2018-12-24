@@ -13,8 +13,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-import static discordbot.DiscordBot.njal;
-
 class MessageReceiver extends ListenerAdapter {
     private boolean unregisterAllConfirm = false;
 
@@ -95,14 +93,14 @@ class MessageReceiver extends ListenerAdapter {
                 //!!lockreg
                 if (eventMsgStr.equals("!!reg lock")) {
                     RegistrationHandler.lockReg();
-                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.adminLockedReg).queue();
+                    event.getChannel().sendMessage(BotMsgs.adminLockedReg).queue();
                     //TODO edit message in register-here channel
                 }
 
                 //!!unlock reg
                 if (eventMsgStr.equals("!!reg unlock")) {
                     RegistrationHandler.unlockReg();
-                    njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.adminUnlockedReg).queue();
+                    event.getChannel().sendMessage(BotMsgs.adminUnlockedReg).queue();
                     //TODO edit message in register-here channel
                 }
 
