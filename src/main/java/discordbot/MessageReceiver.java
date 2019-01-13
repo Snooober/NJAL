@@ -2,6 +2,7 @@ package discordbot;
 
 import constants.BotMsgs;
 import constants.DiscordIds;
+import draftMe.DraftMatcher;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -14,7 +15,7 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 class MessageReceiver extends ListenerAdapter {
-    private boolean unregisterAllConfirm = false;
+    private boolean confirm = false;
 
     private boolean isAdmin(MessageReceivedEvent event) {
         List<Role> memberRoles = event.getMember().getRoles();
@@ -62,6 +63,28 @@ class MessageReceiver extends ListenerAdapter {
         //!unregister
         if (eventMsgStr.equals("!unregister")) {
             RegistrationHandler.unregisterPlayer(event);
+        }
+
+        //!draftme
+        if (eventMsgStr.equals("!draftme")) {
+            DraftMatcher.newDraftMatch(event);
+            if (!directMessage) {
+                event.getChannel().sendMessage(BotMsgs.draftMeEntryStarted).queue();
+            }
+        }
+
+        //!match ####
+        if (eventMsgStr.matches("!match\\s.*")) {
+            if (directMessage) {
+                if (eventMsgStr.matches("!match\\s\\d{1,4}")) {
+                    Integer matchCode = Integer.parseInt(eventMsgStr.substring(7));
+                    DraftMatcher.matchUser(event, matchCode);
+                } else {
+                    event.getChannel().sendMessage(BotMsgs.notValidMatchCode).queue();
+                }
+            } else {
+                event.getChannel().sendMessage(BotMsgs.needToDMRossMatchCode).queue();
+            }
         }
 
         //lol
@@ -132,14 +155,14 @@ class MessageReceiver extends ListenerAdapter {
 
                 //!!unregister all
                 if (eventMsgStr.equals("!!unregister all")) {
-                    unregisterAllConfirm = true;
+                    confirm = true;
                     event.getChannel().sendMessage(BotMsgs.unregisterAllConfirm[0]).queue();
                     event.getChannel().sendMessage(BotMsgs.unregisterAllConfirm[1]).queue();
 
                     class ConfirmFalseTask extends TimerTask {
                         @Override
                         public void run() {
-                            unregisterAllConfirm = false;
+                            confirm = false;
                         }
                     }
                     Timer timer = new Timer();
@@ -148,10 +171,10 @@ class MessageReceiver extends ListenerAdapter {
 
                 //!!confirm
                 if (eventMsgStr.equals("!!confirm")) {
-                    if (unregisterAllConfirm) {
+                    if (confirm) {
                         RegistrationHandler.unregisterAllPlayers();
                         event.getChannel().sendMessage(BotMsgs.unregisteredAllPlayers).queue();
-                        unregisterAllConfirm = false;
+                        confirm = false;
                     }
                 }
             }

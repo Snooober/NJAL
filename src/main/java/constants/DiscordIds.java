@@ -24,4 +24,8 @@ public class DiscordIds {
     public static class CategoryIds {
         public static final String DRAFT_ME_CAT_ID = "516029124825841665";
     }
+
+    public static class RoleIds {
+        public static final String ADMIN = "490085860188880917";
+    }
 }

@@ -2,6 +2,7 @@ package discordbot;
 
 import constants.DiscordIds;
 import constants.Properties;
+import draftMe.LeaveDraftMeEvents;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -22,7 +23,7 @@ public class DiscordBot extends ListenerAdapter {
     }
 
     private static void init() {
-        admin = rossBot.getRoleById("490085860188880917");
+        admin = rossBot.getRoleById(DiscordIds.RoleIds.ADMIN);
         njal = rossBot.getGuildById(DiscordIds.NJAL_GUILD_ID);
     }
 
@@ -30,6 +31,7 @@ public class DiscordBot extends ListenerAdapter {
         JDABuilder builder = new JDABuilder(AccountType.BOT);
         builder.setToken(Properties.getProps().token);
         builder.addEventListener(new MessageReceiver());
+        builder.addEventListener(new LeaveDraftMeEvents());
         builder.addEventListener(new LeaveServerListener());
         builder.addEventListener(new UpdateInfoListener());
 

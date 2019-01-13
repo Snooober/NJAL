@@ -19,11 +19,44 @@ public class BotMsgs {
     public static final String tournLinksNotFound = "\"tourn_links.csv\" was not found.";
     public static final String unregisteredAllPlayers = "All players have been unregistered.";
     public static final String steamConnectedAndRegDM = "Your Steam ID has been linked and you have been registered for the tournament!";
+    public static final String matchPairMade = "Match completed! Finding another pair of players...";
+    public static final String draftMeRoomClosedDM = "Your ***Draft Me!*** room has been closed.";
+    public static final String draftMeEntryStarted = "***Draft Me!*** entry started. Please check your direct messages.";
+    public static final String notValidMatchCode = "That is not a valid match code.";
+    public static final String needToDMRossMatchCode = "You must direct message Ross the bot to accept a ***Draft Me!*** match.";
     public static final String[] unregisterAllConfirm = new String[2];
 
     static {
         unregisterAllConfirm[0] = "Are you sure you want to unregister all players?";
         unregisterAllConfirm[1] = "Enter `!!confirm` to confirm unregistering all players.";
+    }
+
+    public static String draftMeRoomFoundDM(String channelId) {
+        return "***Draft Me!*** room found! See instructions in your ***Draft Me!*** room channel: <#" + channelId + ">";
+    }
+
+    public static String draftMeChannelInstructions(String pair1player1, String pair1player2, String pair2player1, String pair2player2) {
+        return "Welcome to ***Draft Me!*** where you can play Artifact's draft mode against your friends!\n" +
+                "\n" +
+                "**" + pair1player1 + "** please make a tournament in the Artifact client. Set the format to `Swiss` and the deck rules to `Registered Call To Arms Draft`. Setting series to `Best of Five` will allow you to play 5 games against your friend before needing to remake the tournament.\n" +
+                "When you are done, click `Create Open Invite` (be sure \"Single Use\" is ***not*** checked) and paste it into this chat room so that the rest of the players may join.\n" +
+                "\n" +
+                "**" + pair1player1 + "** and **" + pair1player2 + "** should click `Search for match` first.\n" +
+                "Once they have started a game against each other, " + pair2player1 + " and " + pair2player2 + " may search for a match against each other.\n" +
+                "\n" +
+                "***Draft Me!*** is designed so that friends may play each other in draft mode. So when you are finished playing the matches against your friend, you may remake another tournament so that friends may continue playing against each other. If one of the 4 players is finished playing, you will need to re-queue in ***Draft Me!***.\n" +
+                "However, if all 4 players wish to finish the tournament through rather than only play against each other, feel free to do so!\n" +
+                "\n" +
+                "*This room will close when any of the 4 players requeue into Draft Me! or go offline.*";
+
+    }
+
+    public static String wrongUserSentMatchCode(int matchCode) {
+        return "The match code command needs to be entered by your friend you want to play against (not by you). Tell your friend to message `!match " + matchCode + "` to Ross the bot.";
+    }
+
+    public static String queryOpponentMatchCode(int matchCode) {
+        return "You have requested a ***Draft Me!*** match. To complete the match, please tell your opponent to direct message Ross the bot: `!match " + matchCode + "`";
     }
 
     public static String memberJoinNewInfo(String oldName, int oldDiscrim, String newName, int newDiscrim) {
