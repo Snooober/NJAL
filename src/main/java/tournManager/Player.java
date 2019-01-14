@@ -5,6 +5,11 @@ class Player {
     private int numWins;
     private int gamesPlayed;
     private int numByes;
+    private Game currentGame;
+
+    void setCurrentGame(Game currentGame) {
+        this.currentGame = currentGame;
+    }
 
     Player(int playerId) {
         this.playerId = playerId;
@@ -24,5 +29,9 @@ class Player {
 
     int getNumByes() {
         return numByes;
+    }
+
+    Game getCurrentGame() {
+        return currentGame;
     }
 }

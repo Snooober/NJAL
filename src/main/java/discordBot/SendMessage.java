@@ -9,8 +9,8 @@ import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import sqlHandlers.MyDBConnection;
-import sqlHandlers.PlayerLookup;
+import helpers.MyDBConnection;
+import helpers.PlayerLookup;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

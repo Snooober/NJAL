@@ -1,58 +1,80 @@
 package tournManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
-//TODO should keep a playerList member variable and keep track of current game/round/etc. then update SQL tourn_players from this list instead of current round.
+//TODO should keep a getPlayerList member variable and keep track of current game/round/etc. then update SQL tourn_players from this list instead of current round.
 public class Tournament {
     private static Tournament tournament;
-    private static boolean regOpen;
 
     private int maxRounds;
     private int currentGameId;
-    private List<Round> rounds;
-
+    private List<Player> playerList;
+    private RoundManager roundManager;
+    private SQLUpdater sqlUpdater;
 
     private Tournament() {
     }
 
-    static {
-        regOpen = true;
-    }
-
-    public static void startTournament() {
-        regOpen = false;
-
+    public static void newTournament() {
         //TODO
 
         tournament = new Tournament();
-        tournament.maxRounds = 1;
-        tournament.currentGameId = 0;
-        tournament.rounds.add(RoundManager.buildRound0());
+        tournament.initTournament();
+    }
 
-        //Update SQL
-        SQLUpdater.updateTournPlayers();
-        SQLUpdater.updateTournGames();
+    private void initTournament() {
+        roundManager = new RoundManager(this);
+        sqlUpdater = new SQLUpdater(this);
+        playerList = PlayerListBuilder.getPlayerList();
+        initMaxRounds();
+        currentGameId = 0;
+
+        roundManager.addRound0();
+        sqlUpdater.update();
 
         //TODO
+
     }
 
-    static void incrementMaxRounds() {
-        tournament.maxRounds++;
+    private void initMaxRounds() {
+        maxRounds = 1;
+        int timesTwo = 2;
+        while (timesTwo < playerList.size()) {
+            timesTwo = timesTwo * 2;
+            maxRounds++;
+        }
     }
 
-    static int getCurrentGameId() {
-        return tournament.currentGameId;
+    int getCurrentGameId() {
+        return currentGameId;
     }
 
-    static void incrementGameId() {
-        tournament.currentGameId++;
+    void incrementGameId() {
+        currentGameId++;
     }
 
-    static Round getCurrentRound() {
-        return tournament.rounds.get(tournament.rounds.size() - 1);
+    Round getCurrentRound() {
+        List<Round> roundsList = roundManager.getRoundsList();
+        return roundsList.get(roundsList.size() - 1);
     }
 
-    static List<Round> getRoundList() {
-        return tournament.rounds;
+    List<Round> getRoundsList() {
+        return roundManager.getRoundsList();
+    }
+
+    List<Game> getGamesList() {
+        List<Game> gamesList = new ArrayList<>();
+
+        for (Round round :
+                roundManager.getRoundsList()) {
+            gamesList.addAll(round.getRoundGames());
+        }
+
+        return gamesList;
+    }
+
+    List<Player> getPlayerList() {
+        return playerList;
     }
 }

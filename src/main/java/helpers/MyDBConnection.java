@@ -1,4 +1,4 @@
-package sqlHandlers;
+package helpers;
 
 import constants.Properties;
 

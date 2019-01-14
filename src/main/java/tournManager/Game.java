@@ -9,18 +9,17 @@ class Game {
     private WinStatus player1Report;
     private WinStatus player2Report;
 
-    Game(Player player1, Player player2) {
+    Game(Player player1, Player player2,Round round, Tournament tournament) {
         this.player1 = player1;
         this.player2 = player2;
-        this.gameId = Tournament.getCurrentGameId();
-        Tournament.incrementGameId();
+        this.round = round;
+        this.player1.setCurrentGame(this);
+        this.player2.setCurrentGame(this);
+        this.gameId = tournament.getCurrentGameId();
+        tournament.incrementGameId();
         this.winStatus = WinStatus.PENDING;
         this.player1Report = WinStatus.PENDING;
         this.player2Report = WinStatus.PENDING;
-    }
-
-    void setRound(Round round) {
-        this.round = round;
     }
 
     Round getRound() {

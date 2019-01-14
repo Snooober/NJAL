@@ -16,8 +16,8 @@ import net.dv8tion.jda.core.events.user.update.GenericUserUpdateEvent;
 import net.dv8tion.jda.core.events.user.update.UserUpdateDiscriminatorEvent;
 import net.dv8tion.jda.core.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.core.managers.GuildController;
-import sqlHandlers.MyDBConnection;
-import sqlHandlers.PlayerLookup;
+import helpers.MyDBConnection;
+import helpers.PlayerLookup;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

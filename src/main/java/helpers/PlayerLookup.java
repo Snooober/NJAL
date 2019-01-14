@@ -1,6 +1,7 @@
-package sqlHandlers;
+package helpers;
 
 import constants.SQLTableNames;
+import helpers.MyDBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

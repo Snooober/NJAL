@@ -7,20 +7,26 @@ class Round {
     private List<Game> roundGames;
     private Player byePlayer;
     private int roundId;
+    private Tournament tournament;
 
-    Round(int roundId) {
-        this.roundId = roundId;
+    Round(Tournament tournament) {
+        this.tournament = tournament;
         roundGames = new ArrayList<>();
         byePlayer = null;
     }
 
-    void addGame(Game game) {
-        game.setRound(this);
+    void setRoundId(int roundId) {
+        this.roundId = roundId;
+    }
+
+    void addGame(Player player1, Player player2) {
+        Game game = new Game(player1, player2, this, tournament);
         roundGames.add(game);
     }
 
     void setByePlayer(Player byePlayer) {
         this.byePlayer = byePlayer;
+        this.byePlayer.setCurrentGame(null);
     }
 
     List<Game> getRoundGames() {
@@ -31,7 +37,7 @@ class Round {
         return byePlayer;
     }
 
-    public int getRoundId() {
+    int getRoundId() {
         return roundId;
     }
 }
