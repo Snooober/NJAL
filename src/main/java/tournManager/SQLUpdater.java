@@ -101,6 +101,7 @@ public class SQLUpdater {
     }
 
     //TODO remove game_round_id from SQL table
+    //TODO change comp1 to player1 in SQL tables
     static void updateTournGames() {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -124,14 +125,22 @@ public class SQLUpdater {
                     WinStatus player2Report = game.getPlayer2Report();
                     WinStatus winStatus = game.getWinStatus();
 
-                    //write to SQL table tourn_games
-                    //check if current gameId exists
-                    //TODO here
-                    sql = "SELECT gameId from " + SQLTableNames.SQL_TOURN_GAMES + " WHERE gameId = " + gameId + ";";
-                    rs = stmt.executeQuery(sql);
-                    if (rs.next()) {
-                        //update row for current game
+                    //Check if current gameId exists
+                    sql = "SELECT game_id from ? WHERE game_id = ?;";
+                    stmt = conn.prepareStatement(sql);
+                    stmt.setString(1, SQLTableNames.SQL_TOURN_GAMES);
+                    stmt.setInt(2, gameId);
+                    resultSet = stmt.executeQuery();
+                    if (resultSet.next()) {
                         sql = "UPDATE " + SQLTableNames.SQL_TOURN_GAMES + " SET gameId=" + gameId + ", round = " + round + ", game_round_id = " + gameRound_id + ", player1Id = " + player1Id + ", player2Id = " + player2Id + ", comp1_report = '" + player1Report + "', comp2_report = '" + player2Report + "', win_status = '" + winStatus + "' WHERE gameId = " + gameId + ";";
+                        sql = "UPDATE ? SET game_id = ?, round = ?, player1_id = ?, player2_id = ?, player1_report = ?, player2_report =?, win_status = ? WHERE game_id = ?;";
+                        stmt = conn.prepareStatement(sql);
+                        stmt.setString(1, SQLTableNames.SQL_TOURN_GAMES);
+                        stmt.setInt(2, gameId);
+                        stmt.setInt(3, roundId);
+                        stmt.setInt(4, player1Id);
+                        stmt.setInt(5, player2Id);
+                        stmt.
                         stmt.executeUpdate(sql);
                     } else {
                         //add row
