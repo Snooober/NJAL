@@ -1,4 +1,4 @@
-package sqlhandlers;
+package sqlHandlers;
 
 import constants.SQLTableNames;
 

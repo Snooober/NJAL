@@ -26,7 +26,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'discordbot.Main',
+                'Main-Class': 'discordBot.Main',
                 'Class-Path': '/usr/share/java/mysql-connector-java.jar'
         )
     }

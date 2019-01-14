@@ -1,4 +1,4 @@
-package discordbot;
+package discordBot;
 
 import net.dv8tion.jda.core.events.guild.GuildBanEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;

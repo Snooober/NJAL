@@ -1,6 +1,7 @@
 package constants;
 
 public class DiscordIds {
+    //TODO load these ids from a file
 
     public static final String NJAL_GUILD_ID = "490083918423523328";
 

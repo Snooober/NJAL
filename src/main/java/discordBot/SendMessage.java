@@ -1,4 +1,4 @@
-package discordbot;
+package discordBot;
 
 import constants.BotMsgs;
 import constants.DiscordIds;
@@ -9,8 +9,8 @@ import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import sqlhandlers.MyDBConnection;
-import sqlhandlers.PlayerLookup;
+import sqlHandlers.MyDBConnection;
+import sqlHandlers.PlayerLookup;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import static discordbot.DiscordBot.njal;
+import static discordBot.DiscordBot.njal;
 
 public class SendMessage {
     public static void sendDirectMessage(User user, String message) {

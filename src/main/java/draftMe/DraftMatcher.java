@@ -1,8 +1,8 @@
 package draftMe;
 
 import constants.BotMsgs;
-import discordbot.DiscordBot;
-import discordbot.SendMessage;
+import discordBot.DiscordBot;
+import discordBot.SendMessage;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 

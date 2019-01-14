@@ -2,7 +2,7 @@ package constants;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import static discordbot.DiscordBot.njal;
+import static discordBot.DiscordBot.njal;
 
 public class BotMsgs {
     public static final String regLocked = "Registration is currently locked.";

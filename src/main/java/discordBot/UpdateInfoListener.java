@@ -1,4 +1,4 @@
-package discordbot;
+package discordBot;
 
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.user.update.UserUpdateDiscriminatorEvent;

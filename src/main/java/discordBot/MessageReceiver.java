@@ -1,4 +1,4 @@
-package discordbot;
+package discordBot;
 
 import constants.BotMsgs;
 import constants.DiscordIds;

@@ -2,8 +2,8 @@ package draftMe;
 
 import constants.BotMsgs;
 import constants.DiscordIds;
-import discordbot.DiscordBot;
-import discordbot.SendMessage;
+import discordBot.DiscordBot;
+import discordBot.SendMessage;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Channel;

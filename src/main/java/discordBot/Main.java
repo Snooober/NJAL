@@ -1,4 +1,4 @@
-package discordbot;
+package discordBot;
 
 import org.apache.log4j.BasicConfigurator;
 

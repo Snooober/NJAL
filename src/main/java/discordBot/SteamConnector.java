@@ -1,9 +1,9 @@
-package discordbot;
+package discordBot;
 
 import constants.BotMsgs;
 import constants.SQLTableNames;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import sqlhandlers.MyDBConnection;
+import sqlHandlers.MyDBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static discordbot.DiscordBot.njal;
+import static discordBot.DiscordBot.njal;
 
 class SteamConnector {
     public static void connectSteamId(MessageReceivedEvent event, String discordId, String steamId) {

@@ -1,4 +1,4 @@
-package discordbot;
+package discordBot;
 
 import constants.BotMsgs;
 import constants.DiscordIds;
@@ -16,16 +16,16 @@ import net.dv8tion.jda.core.events.user.update.GenericUserUpdateEvent;
 import net.dv8tion.jda.core.events.user.update.UserUpdateDiscriminatorEvent;
 import net.dv8tion.jda.core.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.core.managers.GuildController;
-import sqlhandlers.MyDBConnection;
-import sqlhandlers.PlayerLookup;
+import sqlHandlers.MyDBConnection;
+import sqlHandlers.PlayerLookup;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static discordbot.DiscordBot.njal;
-import static discordbot.DiscordBot.rossBot;
+import static discordBot.DiscordBot.njal;
+import static discordBot.DiscordBot.rossBot;
 
 class RegistrationHandler {
     private static boolean regOpen = true;
