@@ -11,6 +11,7 @@ import java.util.Iterator;
 
 public class SQLUpdater {
 
+    //TODO should update by using a playerList member variable in Tournament()
     static void updateTournPlayers() {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -46,10 +47,6 @@ public class SQLUpdater {
                 stmt.setInt(6, player1Id);
                 stmt.executeUpdate();
 
-                //update record for player2
-                sql = "UPDATE " + SQLTableNames.SQL_TOURN_PLAYERS + " SET wins = " + player2Wins + ", games_played = " + player2GamesPlayed + ", byes = " + player2Byes + ", current_game_id = " + currentGameId + " WHERE player_id = " + player2Id + ";";
-                stmt.executeUpdate(sql);
-
                 //update records for player2
                 sql = "UPDATE ? SET wins = ?, games_played = ?, byes = ?, current_game_id = ? WHERE player_id = ?;";
                 stmt = conn.prepareStatement(sql);
@@ -65,7 +62,6 @@ public class SQLUpdater {
             //update values for bye player
             Player byePlayer = currentRound.getByePlayer();
             if (byePlayer != null) {
-                //TODO current_game_id = null??
                 sql = "UPDATE ? SET wins = ?, games_played = ?, byes = ?, current_game_id = null WHERE player_id = ?;";
                 stmt = conn.prepareStatement(sql);
                 stmt.setString(1, SQLTableNames.SQL_TOURN_PLAYERS);
@@ -132,7 +128,6 @@ public class SQLUpdater {
                     stmt.setInt(2, gameId);
                     resultSet = stmt.executeQuery();
                     if (resultSet.next()) {
-                        sql = "UPDATE " + SQLTableNames.SQL_TOURN_GAMES + " SET gameId=" + gameId + ", round = " + round + ", game_round_id = " + gameRound_id + ", player1Id = " + player1Id + ", player2Id = " + player2Id + ", comp1_report = '" + player1Report + "', comp2_report = '" + player2Report + "', win_status = '" + winStatus + "' WHERE gameId = " + gameId + ";";
                         sql = "UPDATE ? SET game_id = ?, round = ?, player1_id = ?, player2_id = ?, player1_report = ?, player2_report =?, win_status = ? WHERE game_id = ?;";
                         stmt = conn.prepareStatement(sql);
                         stmt.setString(1, SQLTableNames.SQL_TOURN_GAMES);
@@ -140,22 +135,33 @@ public class SQLUpdater {
                         stmt.setInt(3, roundId);
                         stmt.setInt(4, player1Id);
                         stmt.setInt(5, player2Id);
-                        stmt.
-                        stmt.executeUpdate(sql);
+                        stmt.setString(6, player1Report.name());
+                        stmt.setString(7, player2Report.name());
+                        stmt.setString(8, winStatus.name());
+                        stmt.setInt(9, gameId);
+                        stmt.executeUpdate();
                     } else {
-                        //add row
-                        sql = "INSERT INTO " + SQLTableNames.SQL_TOURN_GAMES + " (gameId, round, game_round_id, player1Id, player2Id, comp1_report, comp2_report, win_status) VALUES (" + gameId + ", " + round + ", " + gameRound_id + ", " + player1Id + ", " + player2Id + ", '" + player1Report + "', '" + player2Report + "', '" + winStatus + "');";
-                        stmt.executeUpdate(sql);
+                        sql = "INSERT INTO ? (game_id, round, player1_id, player2_id, player1_report, player2_report, win_status) VALUES (?, ?, ?, ?, ?, ?, ?);";
+                        stmt = conn.prepareStatement(sql);
+                        stmt.setString(1, SQLTableNames.SQL_TOURN_GAMES);
+                        stmt.setInt(2, gameId);
+                        stmt.setInt(3, roundId);
+                        stmt.setInt(4, player1Id);
+                        stmt.setInt(5, player2Id);
+                        stmt.setString(6, player1Report.name());
+                        stmt.setString(7, player2Report.name());
+                        stmt.setString(8, winStatus.name());
+                        stmt.executeUpdate();
                     }
-
-
                 }
             }
 
-
-
-            resultSet.close();
-            stmt.close();
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (stmt != null) {
+                stmt.close();
+            }
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();

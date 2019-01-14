@@ -9,7 +9,6 @@ class Game {
     private WinStatus player1Report;
     private WinStatus player2Report;
 
-
     Game(Player player1, Player player2) {
         this.player1 = player1;
         this.player2 = player2;
@@ -40,15 +39,15 @@ class Game {
         return player2;
     }
 
-    public WinStatus getWinStatus() {
+    WinStatus getWinStatus() {
         return winStatus;
     }
 
-    public WinStatus getPlayer1Report() {
+    WinStatus getPlayer1Report() {
         return player1Report;
     }
 
-    public WinStatus getPlayer2Report() {
+    WinStatus getPlayer2Report() {
         return player2Report;
     }
 }
