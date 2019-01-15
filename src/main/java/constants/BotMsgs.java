@@ -1,5 +1,6 @@
 package constants;
 
+import discordBot.DiscordBot;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import static discordBot.DiscordBot.njal;
@@ -24,11 +25,27 @@ public class BotMsgs {
     public static final String draftMeEntryStarted = "***Draft Me!*** entry started. Please check your direct messages.";
     public static final String notValidMatchCode = "That is not a valid match code.";
     public static final String needToDMRossMatchCode = "You must direct message Ross the bot to accept a ***Draft Me!*** match.";
+    public static final String initialStandingsMsg = "@Registered ``````\n" +
+            "The " + DiscordBot.NJAL_TITLE + " Tournament has begun!\n" +
+            "\n" +
+            "You can see the player list above.\n" +
+            "Ross will direct message you your next opponent.\n" +
+            "When you have finished your game, message Ross **!won** or **!lost** to report whether you won or lost the game.\n";
     public static final String[] unregisterAllConfirm = new String[2];
 
     static {
         unregisterAllConfirm[0] = "Are you sure you want to unregister all players?";
         unregisterAllConfirm[1] = "Enter `!!confirm` to confirm unregistering all players.";
+    }
+
+    public static String tournStartDM(String opponentName) {
+        return "The " + DiscordBot.NJAL_TITLE + " Tournament has begun!\n" +
+                "Your first opponent is: " + opponentName;
+    }
+
+    public static String roundCompleteDM(int currentRoundId, String opponentName) {
+        return "Round " + currentRoundId + " has completed!\n" +
+                "Your opponent for " + currentRoundId+1 + " is: " + opponentName;
     }
 
     public static String draftMeRoomFoundDM(String channelId) {

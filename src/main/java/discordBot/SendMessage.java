@@ -4,13 +4,16 @@ import constants.BotMsgs;
 import constants.DiscordIds;
 import constants.SQLTableNames;
 import helpers.CSVHelper;
+import helpers.MyDBConnection;
+import helpers.PlayerLookup;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import helpers.MyDBConnection;
-import helpers.PlayerLookup;
+import tournManager.Player;
+import tournManager.PlayerStandingsComparator;
+import tournManager.Tournament;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -408,5 +411,92 @@ public class SendMessage {
         fullMessageList.add(message);
 
         return fullMessageList;
+    }
+
+    public static void sendStandings(Tournament tournament) {
+        List<Player> playerList = tournament.getPlayerList();
+        int currentRoundId = tournament.getCurrentRound().getRoundId();
+        playerList.sort(new PlayerStandingsComparator());
+
+        List<String> rankCol = new ArrayList<>();
+        List<String> nameCol = new ArrayList<>();
+        List<String> winsCol = new ArrayList<>();
+        List<String> lossCol = new ArrayList<>();
+        List<String> byesCol = new ArrayList<>();
+        List<String> opponentCol = new ArrayList<>();
+        List<List<String>> colList = new ArrayList<>();
+
+        //labels
+        rankCol.add("Rank");
+        nameCol.add("Name");
+        winsCol.add("Wins");
+        lossCol.add("Losses");
+        byesCol.add("Byes");
+        opponentCol.add("Next opponent");
+
+        int rank = 1;
+        for (Player player :
+                playerList) {
+            int playerId = player.getPlayerId();
+            String discordId = PlayerLookup.getDiscordId(playerId);
+            String discordName = PlayerLookup.getDiscordName(discordId);
+            int wins = player.getNumWins();
+            int gamesPlayed = player.getGamesPlayed();
+            int byes = player.getNumByes();
+            int losses = gamesPlayed - wins;
+            Player opponent = player.getCurrentOpponent();
+            String opponentName;
+            if (opponent == null) {
+                opponentName = "Bye";
+            } else {
+                opponentName = PlayerLookup.getDiscordName(PlayerLookup.getDiscordId(opponent.getPlayerId()));
+            }
+
+            rankCol.add(String.valueOf(rank));
+            nameCol.add(discordName);
+            winsCol.add(String.valueOf(wins));
+            lossCol.add(String.valueOf(losses));
+            byesCol.add(String.valueOf(byes));
+            opponentCol.add(opponentName);
+
+            //Send DM's
+            User user = njal.getMemberById(discordId).getUser();
+            if (currentRoundId == 0) {
+                SendMessage.sendDirectMessage(user, BotMsgs.tournStartDM(opponentName));
+            } else if (tournament.onFinalRound()) {
+                //TODO
+            } else {
+                SendMessage.sendDirectMessage(user, BotMsgs.roundCompleteDM(currentRoundId, opponentName));
+            }
+
+            rank++;
+        }
+
+        if (currentRoundId != 0) {
+            colList.add(rankCol);
+        }
+        colList.add(nameCol);
+        colList.add(winsCol);
+        colList.add(lossCol);
+        colList.add(byesCol);
+        if (!tournament.onFinalRound()) {
+            colList.add(opponentCol);
+        }
+
+        //Send standings
+        List<String> fullMsgArray = listMessageBuilder(colList);
+        for (String message :
+                fullMsgArray) {
+            njal.getTextChannelById(DiscordIds.ChannelIds.STANDINGS_REPORT_CHANNEL).sendMessage(message).complete();
+        }
+
+        //Send message after standings
+        if (currentRoundId ==0) {
+            njal.getTextChannelById(DiscordIds.ChannelIds.STANDINGS_REPORT_CHANNEL).sendMessage(BotMsgs.initialStandingsMsg).queue();
+        } else if (tournament.onFinalRound()) {
+            //TODO
+        } else {
+
+        }
     }
 }

@@ -1,6 +1,6 @@
 package tournManager;
 
-class Player {
+public class Player {
     private int playerId;
     private int numWins;
     private int gamesPlayed;
@@ -13,22 +13,39 @@ class Player {
 
     Player(int playerId) {
         this.playerId = playerId;
+        this.numWins = 0;
+        this.gamesPlayed = 0;
+        this.numByes = 0;
     }
 
-    int getPlayerId() {
+    public int getPlayerId() {
         return playerId;
     }
 
-    int getNumWins() {
+    public int getNumWins() {
         return numWins;
     }
 
-    int getGamesPlayed() {
+    public int getGamesPlayed() {
         return gamesPlayed;
     }
 
-    int getNumByes() {
+    public int getNumByes() {
         return numByes;
+    }
+
+    public Player getCurrentOpponent() {
+        if (currentGame==null) {
+            return null;
+        }
+
+        Player player1 = currentGame.getPlayer1();
+        Player player2 = currentGame.getPlayer2();
+        if (player1.equals(this)) {
+            return player2;
+        } else {
+            return player1;
+        }
     }
 
     Game getCurrentGame() {

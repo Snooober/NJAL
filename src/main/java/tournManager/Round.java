@@ -3,7 +3,7 @@ package tournManager;
 import java.util.ArrayList;
 import java.util.List;
 
-class Round {
+public class Round {
     private List<Game> roundGames;
     private Player byePlayer;
     private int roundId;
@@ -37,7 +37,7 @@ class Round {
         return byePlayer;
     }
 
-    int getRoundId() {
+    public int getRoundId() {
         return roundId;
     }
 }

@@ -54,9 +54,13 @@ public class Tournament {
         currentGameId++;
     }
 
-    Round getCurrentRound() {
+    public Round getCurrentRound() {
         List<Round> roundsList = roundManager.getRoundsList();
         return roundsList.get(roundsList.size() - 1);
+    }
+
+    public boolean onFinalRound() {
+        return (!(roundManager.getRoundsList().size() < (maxRounds - 1)));
     }
 
     List<Round> getRoundsList() {
@@ -74,7 +78,7 @@ public class Tournament {
         return gamesList;
     }
 
-    List<Player> getPlayerList() {
+    public List<Player> getPlayerList() {
         return playerList;
     }
 }

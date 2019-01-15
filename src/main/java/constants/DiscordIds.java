@@ -6,6 +6,7 @@ public class DiscordIds {
     public static final String NJAL_GUILD_ID = "490083918423523328";
 
     public static class ChannelIds {
+        public static final String STANDINGS_REPORT_CHANNEL = "519673800648818708";
         public static final String SUPER_ADMIN_CHANNEL = "498737165396606976";
         public static final String ROSS_LOG_CHANNEL = "526274368444039196";
         public static final String DRAFT_ME_CHANNEL = "516029333844918273";
