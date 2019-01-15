@@ -1,9 +1,10 @@
 package tournManager;
 
+import discordBot.SendMessage;
+
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO should keep a getPlayerList member variable and keep track of current game/round/etc. then update SQL tourn_players from this list instead of current round.
 public class Tournament {
     private static Tournament tournament;
 
@@ -17,7 +18,7 @@ public class Tournament {
     }
 
     public static void newTournament() {
-        //TODO
+        //TODO archive tournament and clear SQL tables
 
         tournament = new Tournament();
         tournament.initTournament();
@@ -32,9 +33,9 @@ public class Tournament {
 
         roundManager.addRound0();
         sqlUpdater.update();
+        //TODO save tournament
 
-        //TODO
-
+        SendMessage.sendStandings(this);
     }
 
     private void initMaxRounds() {
