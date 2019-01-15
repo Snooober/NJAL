@@ -14,7 +14,6 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import javax.security.auth.login.LoginException;
 
 public class DiscordBot extends ListenerAdapter {
-    public static final String NJAL_TITLE = ":small_red_triangle_down: **Nicely Jobbed! :thumbsup: Artifact League!** :small_red_triangle_down:";
     public static JDA rossBot;
     public static Role admin;
     public static Guild njal;

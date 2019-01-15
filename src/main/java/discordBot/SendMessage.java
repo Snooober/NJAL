@@ -417,6 +417,10 @@ public class SendMessage {
         List<Player> playerList = tournament.getPlayerList();
         int currentRoundId = tournament.getCurrentRound().getRoundId();
         playerList.sort(new PlayerStandingsComparator());
+        Player winner = null;
+        if (tournament.onFinalRound()) {
+            winner = playerList.get(0);
+        }
 
         List<String> rankCol = new ArrayList<>();
         List<String> nameCol = new ArrayList<>();
@@ -426,7 +430,7 @@ public class SendMessage {
         List<String> opponentCol = new ArrayList<>();
         List<List<String>> colList = new ArrayList<>();
 
-        //labels
+        //Add labels
         rankCol.add("Rank");
         nameCol.add("Name");
         winsCol.add("Wins");
@@ -452,6 +456,7 @@ public class SendMessage {
                 opponentName = PlayerLookup.getDiscordName(PlayerLookup.getDiscordId(opponent.getPlayerId()));
             }
 
+            //Add entries for each player (in order of rank)
             rankCol.add(String.valueOf(rank));
             nameCol.add(discordName);
             winsCol.add(String.valueOf(wins));
@@ -462,16 +467,21 @@ public class SendMessage {
             //Send DM's
             User user = njal.getMemberById(discordId).getUser();
             if (currentRoundId == 0) {
-                SendMessage.sendDirectMessage(user, BotMsgs.tournStartDM(opponentName));
-            } else if (tournament.onFinalRound()) {
-                //TODO
+                SendMessage.sendDirectMessage(user, BotMsgs.StandingsMsgs.tournStartDM(opponentName));
+            } else if (tournament.onFinalRound() && winner != null) {
+                if (playerId == winner.getPlayerId()) {
+                    SendMessage.sendDirectMessage(user, BotMsgs.StandingsMsgs.finalRoundWinnerDM);
+                } else {
+                    SendMessage.sendDirectMessage(user, BotMsgs.StandingsMsgs.finalRoundDM);
+                }
             } else {
-                SendMessage.sendDirectMessage(user, BotMsgs.roundCompleteDM(currentRoundId, opponentName));
+                SendMessage.sendDirectMessage(user, BotMsgs.StandingsMsgs.roundCompleteDM(currentRoundId, opponentName));
             }
 
             rank++;
         }
 
+        //Add columns to colList
         if (currentRoundId != 0) {
             colList.add(rankCol);
         }
@@ -491,12 +501,12 @@ public class SendMessage {
         }
 
         //Send message after standings
-        if (currentRoundId ==0) {
-            njal.getTextChannelById(DiscordIds.ChannelIds.STANDINGS_REPORT_CHANNEL).sendMessage(BotMsgs.initialStandingsMsg).queue();
-        } else if (tournament.onFinalRound()) {
-            //TODO
+        if (currentRoundId == 0) {
+            njal.getTextChannelById(DiscordIds.ChannelIds.STANDINGS_REPORT_CHANNEL).sendMessage(BotMsgs.StandingsMsgs.tournStartStandingsMsg).queue();
+        } else if (tournament.onFinalRound() && winner != null) {
+            njal.getTextChannelById(DiscordIds.ChannelIds.STANDINGS_REPORT_CHANNEL).sendMessage(BotMsgs.StandingsMsgs.finalRoundStandingsMsg(PlayerLookup.getDiscordName(PlayerLookup.getDiscordId(winner.getPlayerId())))).queue();
         } else {
-
+            njal.getTextChannelById(DiscordIds.ChannelIds.STANDINGS_REPORT_CHANNEL).sendMessage(BotMsgs.StandingsMsgs.roundCompleteStandingsMsg(currentRoundId)).queue();
         }
     }
 }
