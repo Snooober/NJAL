@@ -34,6 +34,19 @@ public class Player {
         return numByes;
     }
 
+    void addWin() {
+        numWins++;
+        gamesPlayed++;
+    }
+
+    void addLoss() {
+        gamesPlayed++;
+    }
+
+    void addBye() {
+        numByes++;
+    }
+
     public Player getCurrentOpponent() {
         if (currentGame==null) {
             return null;
@@ -50,5 +63,9 @@ public class Player {
 
     Game getCurrentGame() {
         return currentGame;
+    }
+
+    WinStatus setResult(boolean result) {
+        return currentGame.setPlayerReport(this, result);
     }
 }

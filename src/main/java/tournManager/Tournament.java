@@ -5,13 +5,14 @@ import discordBot.SendMessage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Tournament {
     private static Tournament tournament;
 
     private int maxRounds;
     private int currentGameId;
-    private List<Player> playerList;
+    private Map<Integer, Player> playerMap;
     private RoundManager roundManager;
     private SQLUpdater sqlUpdater;
 
@@ -27,18 +28,14 @@ public class Tournament {
         tournament.initTournament();
     }
 
-    public static boolean onGoingTourn() {
-        if (tournament == null) {
-            return false;
-        } else {
-            return true;
-        }
+    public static Tournament getOnGoingTourn() {
+        return tournament;
     }
 
     private void initTournament() {
         roundManager = new RoundManager(this);
         sqlUpdater = new SQLUpdater(this);
-        playerList = PlayerListBuilder.getPlayerList();
+        playerMap = PlayerListBuilder.getPlayerMap();
         initMaxRounds();
         currentGameId = 0;
 
@@ -52,7 +49,7 @@ public class Tournament {
     private void initMaxRounds() {
         maxRounds = 1;
         int timesTwo = 2;
-        while (timesTwo < playerList.size()) {
+        while (timesTwo < playerMap.size()) {
             timesTwo = timesTwo * 2;
             maxRounds++;
         }
@@ -90,7 +87,11 @@ public class Tournament {
         return gamesList;
     }
 
+    public Map<Integer, Player> getPlayerMap() {
+        return playerMap;
+    }
+
     public List<Player> getPlayerList() {
-        return playerList;
+        return new ArrayList<>(playerMap.values());
     }
 }

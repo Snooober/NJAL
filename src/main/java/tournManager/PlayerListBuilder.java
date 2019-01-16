@@ -7,21 +7,20 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class PlayerListBuilder {
 
-    static List<Player> getPlayerList() {
-        List<Player> playerList = new ArrayList<>();
-        Iterator<Integer> playerIds = getTournPlayerIds().iterator();
-        while (playerIds.hasNext()) {
-            Player player = new Player(playerIds.next());
-            playerList.add(player);
+    static Map<Integer, Player> getPlayerMap() {
+        Map<Integer, Player> playerMap = new HashMap<>();
+
+        for (Integer playerId :
+                getTournPlayerIds()) {
+            Player player = new Player(playerId);
+            playerMap.put(player.getPlayerId(), player);
         }
 
-        return playerList;
+        return playerMap;
     }
 
     private static List<Integer> getTournPlayerIds() {

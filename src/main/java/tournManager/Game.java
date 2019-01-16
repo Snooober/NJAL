@@ -9,7 +9,7 @@ class Game {
     private WinStatus player1Report;
     private WinStatus player2Report;
 
-    Game(Player player1, Player player2,Round round, Tournament tournament) {
+    Game(Player player1, Player player2, Round round, Tournament tournament) {
         this.player1 = player1;
         this.player2 = player2;
         this.round = round;
@@ -48,5 +48,45 @@ class Game {
 
     WinStatus getPlayer2Report() {
         return player2Report;
+    }
+
+    private WinStatus updateWinStatus() {
+        if (!player1Report.equals(WinStatus.PENDING) || !player2Report.equals(WinStatus.PENDING)) {
+            if (player1Report.equals(player2Report)) {
+                if (player1Report.equals(WinStatus.PLAYER1)) {
+                    //player1 won
+                    this.winStatus = WinStatus.PLAYER1;
+                    player1.addWin();
+                    player2.addLoss();
+                } else if (player1Report.equals(WinStatus.PLAYER2)) {
+                    //player 2 won
+                    this.winStatus = WinStatus.PLAYER2;
+                    player1.addLoss();
+                    player2.addWin();
+                }
+            } else {
+                this.winStatus = WinStatus.CONFLICT;
+            }
+        }
+
+        return winStatus;
+    }
+
+    WinStatus setPlayerReport(Player player, boolean result) {
+        if (player.equals(player1)) {
+            if (result) {
+                player1Report = WinStatus.PLAYER1;
+            } else {
+                player1Report = WinStatus.PLAYER2;
+            }
+        } else if (player.equals(player2)) {
+            if (result) {
+                player2Report = WinStatus.PLAYER2;
+            } else {
+                player2Report = WinStatus.PLAYER1;
+            }
+        }
+
+        return updateWinStatus();
     }
 }
