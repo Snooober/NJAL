@@ -122,6 +122,10 @@ public class BotMsgs {
                 "Please check your DM's from Ross the bot! You will need to link your Steam profile.";
     }
 
+    public static class ReportResult {
+        public static final String noTourn = "There is no on-going tournament.";
+    }
+
     public static class StandingsMsgs {
         public static final String tournStartStandingsMsg = "@Registered ``````\n" +
                 "The " + NJAL_TITLE + " Tournament has begun!\n" +

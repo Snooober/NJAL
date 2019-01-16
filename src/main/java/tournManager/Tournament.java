@@ -1,5 +1,6 @@
 package tournManager;
 
+import discordBot.RegistrationHandler;
 import discordBot.SendMessage;
 
 import java.util.ArrayList;
@@ -18,10 +19,20 @@ public class Tournament {
     }
 
     public static void newTournament() {
+        RegistrationHandler.lockReg();
+
         //TODO archive tournament and clear SQL tables
 
         tournament = new Tournament();
         tournament.initTournament();
+    }
+
+    public static boolean onGoingTourn() {
+        if (tournament == null) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     private void initTournament() {

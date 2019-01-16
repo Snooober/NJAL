@@ -27,7 +27,7 @@ import java.sql.SQLException;
 import static discordBot.DiscordBot.njal;
 import static discordBot.DiscordBot.rossBot;
 
-class RegistrationHandler {
+public class RegistrationHandler {
     private static boolean regOpen = true;
 
     public static void lockReg() {

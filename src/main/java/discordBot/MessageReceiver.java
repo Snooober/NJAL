@@ -101,6 +101,11 @@ class MessageReceiver extends ListenerAdapter {
             event.getChannel().sendMessage(message).queue();
         }
 
+        //!won or !win
+        if (eventMsgStr.equals("!won") || eventMsgStr.equals("!win")) {
+
+        }
+
         /*
          * ~~~~~~~~~~~~~~~~~~~~~~~~~ADMIN COMMANDS~~~~~~~~~~~~~~~~~~~~~~~~~
          */

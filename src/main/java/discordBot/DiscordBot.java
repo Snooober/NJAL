@@ -9,11 +9,10 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import javax.security.auth.login.LoginException;
 
-public class DiscordBot extends ListenerAdapter {
+public class DiscordBot {
     public static JDA rossBot;
     public static Role admin;
     public static Guild njal;
