@@ -1,5 +1,6 @@
 package tournManager;
 
+import com.mysql.jdbc.MySQLConnection;
 import constants.SQLTableNames;
 import helpers.MyDBConnection;
 
@@ -7,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 class SQLUpdater {
     private Tournament tournament;
@@ -128,6 +130,72 @@ class SQLUpdater {
                 stmt.close();
             }
             conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    void updateOverallStats() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet resultSet = null;
+
+        try {
+            conn = MyDBConnection.getConnection();
+            String sql;
+
+            List<Player> playerList = tournament.getPlayerList();
+            for (Player player :
+                    playerList) {
+
+                //get wins, games played, byes from player
+                sql = "SELECT wins, games_played, byes FROM ? WHERE player_id = ?;";
+                stmt = conn.prepareStatement(sql);
+                stmt.setString(1, SQLTableNames.SQL_PLAYER_INFO);
+                stmt.setInt(2, player.getPlayerId());
+                resultSet = stmt.executeQuery();
+
+                resultSet.next();
+                int wins = resultSet.getInt("wins") + player.getNumWins();
+                int gamesPlayed = resultSet.getInt("games_played") + player.getGamesPlayed();
+                int byes = resultSet.getInt("byes") + player.getNumByes();
+
+                sql = "UPDATE ? SET wins = ?, games_played = ?, byes = ? WHERE played_id = ?;";
+                stmt = conn.prepareStatement(sql);
+                stmt.setString(1, SQLTableNames.SQL_PLAYER_INFO);
+                stmt.setInt(2, wins);
+                stmt.setInt(3, gamesPlayed);
+                stmt.setInt(4, byes);
+                stmt.setInt(5, player.getPlayerId());
+                stmt.executeUpdate();
+            }
+
+            //Update tourn_wins for the winner
+            playerList.sort(new PlayerStandingsComparator());
+
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

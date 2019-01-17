@@ -391,7 +391,7 @@ public class SendMessage {
             }
             potentialMsg = potentialMsg.trim();
 
-            //max char limit is 2000, so if concating the potentialMsg to message will be less then 1996, go ahead and concat.
+            //max char limit is 2000, so if concatenating the potentialMsg to message will be less then 1996, go ahead and concat.
             //if not, add current message to array and then make a new message for the bot to send
             if ((message.length() + potentialMsg.length()) <= 1996) {
                 message = message.concat(potentialMsg);

@@ -50,7 +50,14 @@ class RoundManager {
         //TODO save tournament
     }
 
+    private void endTourn() {
+        //TODO here
+
+
+    }
+
     void checkNextRound() {
+        //Return if round is not complete
         Round currentRound = roundsList.get(roundsList.size() - 1);
         for (Game game :
                 currentRound.getRoundGames()) {
@@ -59,6 +66,13 @@ class RoundManager {
             }
         }
 
+        //Check for final round
+        if (tournament.onFinalRound()) {
+            endTourn();
+        }
+
+
+        //Transition to a new round
         addRound();
     }
 }
