@@ -43,7 +43,7 @@ public class ReportResult {
                 break;
         }
 
-        Tournament.getOnGoingTourn().checkNextRound();
-        Tournament.getOnGoingTourn().updateSQL();
+        tournament.checkNextRound();
+        tournament.updateSQL();
     }
 }
