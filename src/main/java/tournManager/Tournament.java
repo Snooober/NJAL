@@ -32,6 +32,10 @@ public class Tournament {
         return tournament;
     }
 
+    void checkNextRound() {
+        roundManager.checkNextRound();
+    }
+
     private void initTournament() {
         roundManager = new RoundManager(this);
         sqlUpdater = new SQLUpdater(this);
@@ -39,11 +43,9 @@ public class Tournament {
         initMaxRounds();
         currentGameId = 0;
 
-        roundManager.addRound0();
+        roundManager.addRound();
         sqlUpdater.update();
         //TODO save tournament
-
-        SendMessage.sendStandings(this);
     }
 
     private void initMaxRounds() {
@@ -53,6 +55,10 @@ public class Tournament {
             timesTwo = timesTwo * 2;
             maxRounds++;
         }
+    }
+
+    public void updateSQL() {
+        sqlUpdater.update();
     }
 
     int getCurrentGameId() {

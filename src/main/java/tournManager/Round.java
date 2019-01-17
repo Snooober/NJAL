@@ -11,12 +11,10 @@ public class Round {
 
     Round(Tournament tournament) {
         this.tournament = tournament;
+        this.roundId = tournament.getRoundsList().size()-1;
         roundGames = new ArrayList<>();
         byePlayer = null;
-    }
-
-    void setRoundId(int roundId) {
-        this.roundId = roundId;
+        tournament.getRoundsList().add(this);
     }
 
     void addGame(Player player1, Player player2) {
@@ -26,7 +24,8 @@ public class Round {
 
     void setByePlayer(Player byePlayer) {
         this.byePlayer = byePlayer;
-        this.byePlayer.setCurrentGame(null);
+        byePlayer.setCurrentGame(null);
+        byePlayer.addBye();
     }
 
     List<Game> getRoundGames() {

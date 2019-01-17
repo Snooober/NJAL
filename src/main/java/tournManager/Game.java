@@ -50,6 +50,10 @@ class Game {
         return player2Report;
     }
 
+    boolean isComplete() {
+        return (winStatus.equals(WinStatus.PLAYER1) || winStatus.equals(WinStatus.PLAYER2));
+    }
+
     private WinStatus updateWinStatus() {
         if (!player1Report.equals(WinStatus.PENDING) || !player2Report.equals(WinStatus.PENDING)) {
             if (player1Report.equals(player2Report)) {

@@ -1,5 +1,7 @@
 package tournManager;
 
+import discordBot.SendMessage;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,33 +19,46 @@ class RoundManager {
         return roundsList;
     }
 
-    void addRound0() {
+    void addRound() {
         List<Player> playerList = tournament.getPlayerList();
-        Round round0 = new Round(tournament);
+        Round newRound = new Round(tournament);
 
-        //Shuffle player list
-        Collections.shuffle(playerList);
+        if (newRound.getRoundId() == 0) {
+            //Shuffle player list for round 0.
+            Collections.shuffle(playerList);
+        } else {
+            playerList.sort(new PlayerGameAssignmentComparator());
+        }
 
-        //Add 2 players to new game. Add game to round.
+        //Add 2 players to new game.
         int index = 0;
         while (index < playerList.size() - 1) {
             Player player1 = playerList.get(index);
             Player player2 = playerList.get(index + 1);
-            round0.addGame(player1, player2);
+            newRound.addGame(player1, player2);
 
             index = index + 2;
         }
 
-        //Manage bye
+        //Manage bye player
         if (index == (playerList.size()) - 1) {
-            round0.setByePlayer(playerList.get(index));
+            newRound.setByePlayer(playerList.get(index));
         }
 
-        addRound(round0);
+        //TODO may need to adjust byes when sending standings
+        SendMessage.sendStandings(tournament);
+        //TODO save tournament
     }
 
-    private void addRound(Round round) {
-        round.setRoundId(roundsList.size());
-        roundsList.add(round);
+    void checkNextRound() {
+        Round currentRound = roundsList.get(roundsList.size() - 1);
+        for (Game game :
+                currentRound.getRoundGames()) {
+            if (!game.isComplete()) {
+                return;
+            }
+        }
+
+        addRound();
     }
 }

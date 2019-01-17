@@ -124,6 +124,37 @@ public class BotMsgs {
 
     public static class ReportResult {
         public static final String noTourn = "There is no on-going tournament.";
+        public static final String waitingForOpponent = "Waiting for opponent to submit result.";
+        public static final String reportConflict = "Player reports differ. Please resend \"!win\" or \"!lose\" to correct result report or contact an admin.";
+
+        private static String resultToString(boolean result) {
+            return resultToString(result, false);
+        }
+
+        private static String resultToString(boolean result, boolean capitol) {
+            if (result) {
+                if (capitol) {
+                    return "Win";
+                } else {
+                    return "win";
+                }
+            } else {
+                if (capitol) {
+                    return "Loss";
+                } else {
+                    return "loss";
+                }
+            }
+        }
+
+        public static String youHaveReportedResult(boolean result) {
+            return "You have reported a " + resultToString(result) + ".";
+        }
+
+        public static String resultAcceptAndProcess(boolean result) {
+            return resultToString(result, true) + " accepted and processed.";
+
+        }
     }
 
     public static class StandingsMsgs {
