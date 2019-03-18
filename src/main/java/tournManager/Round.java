@@ -11,7 +11,7 @@ public class Round {
 
     Round(Tournament tournament) {
         this.tournament = tournament;
-        this.roundId = tournament.getRoundsList().size()-1;
+        this.roundId = tournament.getRoundsList().size();
         roundGames = new ArrayList<>();
         byePlayer = null;
         tournament.getRoundsList().add(this);

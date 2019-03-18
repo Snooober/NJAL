@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Tournament {
-    private static Tournament tournament;
+    private static Tournament tournament = null;
 
     private int maxRounds;
     private int currentGameId;
@@ -23,6 +23,10 @@ public class Tournament {
         RegistrationHandler.lockReg();
 
         //TODO archive tournament and clear SQL tables
+
+        if (tournament!=null) {
+            tournament.archiveTourn();
+        }
 
         tournament = new Tournament();
         tournament.initTournament();
@@ -55,6 +59,15 @@ public class Tournament {
             timesTwo = timesTwo * 2;
             maxRounds++;
         }
+    }
+
+    void saveTourn() {
+        sqlUpdater.saveTourn();
+    }
+
+    void archiveTourn() {
+        sqlUpdater.saveTourn();
+        sqlUpdater.archiveTourn();
     }
 
     void updateSQL() {

@@ -8,6 +8,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 class SQLUpdater {
@@ -15,6 +18,133 @@ class SQLUpdater {
 
     SQLUpdater(Tournament tournament) {
         this.tournament = tournament;
+    }
+
+    void saveTourn() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+
+        try {
+            conn = MyDBConnection.getConnection();
+            String sql;
+
+            //TODO fix SQL table columns: current_round_id int primary key , tourn blob
+
+            sql = "UPDATE ? SET tourn = ? WHERE current_round_id = ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, SQLTableNames.SQL_CURRENT_T);
+            stmt.setObject(2, tournament);
+            stmt.setInt(3, tournament.getCurrentRound().getRoundId());
+            stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    void archiveTourn() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet resultSet = null;
+
+        try {
+            conn = MyDBConnection.getConnection();
+            String sql;
+
+            Date date = new Date();
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+            String dateStr = dateFormat.format(date);
+
+            //find new tournId
+            int newTournId = 0;
+            while (true) {
+                sql = "SELECT tourn_id from ? WHERE tourn_id = ?;";
+                stmt = conn.prepareStatement(sql);
+                stmt.setString(1, SQLTableNames.SQL_ARCHIVE_T);
+                stmt.setInt(2, newTournId);
+                resultSet = stmt.executeQuery();
+                if (resultSet.next()) {
+                    newTournId++;
+                } else {
+                    break;
+                }
+            }
+
+            //TODO fix columns for archive_t
+
+            //copy current_t to archive_t
+            sql = "INSERT INTO ? (tourn_id, date, current_round_id, tourn) SELECT ?, ?, current_round_id, tourn FROM ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, SQLTableNames.SQL_ARCHIVE_T);
+            stmt.setString(2, dateStr);
+            stmt.setInt(3, newTournId);
+            stmt.setString(4, SQLTableNames.SQL_CURRENT_T);
+            stmt.executeUpdate();
+
+            //clear current_t
+            sql = "DELETE FROM ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, SQLTableNames.SQL_CURRENT_T);
+            stmt.executeUpdate();
+
+            //TODO handle tourn_games if we decided to keep the table
+
+            //copy tourn_players to new table
+            sql = "CREATE table ? SELECT * FROM ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, "tourn_players_" + dateStr);
+            stmt.setString(2, SQLTableNames.SQL_TOURN_PLAYERS);
+            stmt.executeUpdate();
+
+            //clear tourn_players
+            sql = "DELETE FROM ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, SQLTableNames.SQL_TOURN_PLAYERS);
+            stmt.executeUpdate();
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     void update() {
@@ -69,6 +199,7 @@ class SQLUpdater {
 
     //TODO remove game_round_id from SQL table
     //TODO change comp1 to player1 in SQL tables
+    //TODO most likely just remove tourn_games table. don't think it is needed or used anywhere anymore
     private void updateTournGames() {
         Connection conn = null;
         PreparedStatement stmt = null;

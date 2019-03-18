@@ -1,5 +1,6 @@
 package tournManager;
 
+import discordBot.RegistrationHandler;
 import discordBot.SendMessage;
 
 import java.util.ArrayList;
@@ -47,18 +48,15 @@ class RoundManager {
 
         //TODO may need to adjust byes when sending standings
         SendMessage.sendStandings(tournament);
-        //TODO save tournament
+
+        tournament.saveTourn();
     }
 
     private void endTourn() {
-        //TODO here
         tournament.updateOverallStats();
-        //TODO alter message
         SendMessage.sendStandings(tournament);
-
-        //TODO save tournament
-        //TODO unregister players
-
+        tournament.archiveTourn();
+        RegistrationHandler.unregisterAllPlayers();
     }
 
     void checkNextRound() {
@@ -78,5 +76,7 @@ class RoundManager {
             //Transition to a new round
             addRound();
         }
+
+
     }
 }
