@@ -194,7 +194,23 @@ class SQLUpdater {
 
             //Update tourn_wins for the winner
             playerList.sort(new PlayerStandingsComparator());
+            Player winner = playerList.get(0);
 
+            sql = "SELECT tourn_wins FROM ? WHERE player_id = ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, SQLTableNames.SQL_PLAYER_INFO);
+            stmt.setInt(2, winner.getPlayerId());
+            resultSet = stmt.executeQuery();
+
+            resultSet.next();
+            int tournWins = resultSet.getInt("tourn_wins") + 1;
+
+            sql = "UPDATE ? SET tourn_wins = ? WHERE player_id = ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, SQLTableNames.SQL_PLAYER_INFO);
+            stmt.setInt(2, tournWins);
+            stmt.setInt(3, winner.getPlayerId());
+            stmt.executeUpdate();
 
         } catch (SQLException e) {
             e.printStackTrace();

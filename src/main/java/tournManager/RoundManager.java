@@ -52,7 +52,12 @@ class RoundManager {
 
     private void endTourn() {
         //TODO here
+        tournament.updateOverallStats();
+        //TODO alter message
+        SendMessage.sendStandings(tournament);
 
+        //TODO save tournament
+        //TODO unregister players
 
     }
 
@@ -69,10 +74,9 @@ class RoundManager {
         //Check for final round
         if (tournament.onFinalRound()) {
             endTourn();
+        } else {
+            //Transition to a new round
+            addRound();
         }
-
-
-        //Transition to a new round
-        addRound();
     }
 }
