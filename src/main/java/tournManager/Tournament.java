@@ -22,9 +22,8 @@ public class Tournament {
     public static void newTournament() {
         RegistrationHandler.lockReg();
 
-        //TODO archive tournament and clear SQL tables
-
-        if (tournament!=null) {
+        //if another tournament exists, archive it and clear SQL tables
+        if (tournament != null) {
             tournament.archiveTourn();
         }
 
@@ -49,7 +48,6 @@ public class Tournament {
 
         roundManager.addRound();
         sqlUpdater.update();
-        //TODO save tournament
     }
 
     private void initMaxRounds() {

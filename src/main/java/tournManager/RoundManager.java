@@ -76,7 +76,5 @@ class RoundManager {
             //Transition to a new round
             addRound();
         }
-
-
     }
 }
