@@ -11,6 +11,16 @@ public class Properties {
     public String pass;
     public String token;
 
+    String njalGuildId;
+    String standingsReportChannel;
+    String rossLogChannel;
+    String draftMeChannel;
+    String registerChannel;
+    String playerListChannel;
+    String overallStandingsChannel;
+    String draftMeCatId;
+    String admin;
+
     private Properties() {
         setProperties();
     }
@@ -33,6 +43,16 @@ public class Properties {
             if (pass.length() == 0) {
                 pass = null;
             }
+
+            njalGuildId = props.getProperty("njalGuildId");
+            standingsReportChannel = props.getProperty("standingsReportChannel");
+            rossLogChannel = props.getProperty("rossLogChannel");
+            draftMeChannel = props.getProperty("draftMeChannel");
+            registerChannel = props.getProperty("registerChannel");
+            playerListChannel = props.getProperty("playerListChannel");
+            overallStandingsChannel = props.getProperty("overallStandingsChannel");
+            draftMeCatId = props.getProperty("draftMeCatId");
+            admin = props.getProperty("admin");
 
             in.close();
         } catch (FileNotFoundException e) {

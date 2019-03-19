@@ -13,8 +13,8 @@ import net.dv8tion.jda.core.entities.Role;
 import javax.security.auth.login.LoginException;
 
 public class DiscordBot {
-    public static JDA rossBot;
-    public static Role admin;
+    private static JDA rossBot;
+    static Role admin;
     public static Guild njal;
 
     private DiscordBot() {
@@ -25,7 +25,7 @@ public class DiscordBot {
         njal = rossBot.getGuildById(DiscordIds.NJAL_GUILD_ID);
     }
 
-    public static void startRoss() {
+    static void startRoss() {
         JDABuilder builder = new JDABuilder(AccountType.BOT);
         builder.setToken(Properties.getProps().token);
         builder.addEventListener(new MessageReceiver());

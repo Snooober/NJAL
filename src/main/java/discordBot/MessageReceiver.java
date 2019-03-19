@@ -28,7 +28,7 @@ class MessageReceiver extends ListenerAdapter {
 
     private void clearMsgs(MessageReceivedEvent event) {
         String channelId = event.getChannel().getId();
-        if (channelId.equals(DiscordIds.ChannelIds.DRAFT_ME_CHANNEL) || channelId.equals(DiscordIds.ChannelIds.REGISTER_HERE_CHANNEL)) {
+        if (channelId.equals(DiscordIds.ChannelIds.DRAFT_ME_CHANNEL) || channelId.equals(DiscordIds.ChannelIds.REGISTER_CHANNEL)) {
             if (event.getMessage().getContentRaw().matches("!.*")) {
                 event.getMessage().delete().queueAfter(30, TimeUnit.SECONDS);
             } else if (event.getAuthor().isBot()) {

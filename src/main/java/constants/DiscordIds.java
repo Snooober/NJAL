@@ -1,30 +1,37 @@
 package constants;
 
 public class DiscordIds {
-    //TODO load these ids from a file
 
-    public static final String NJAL_GUILD_ID = "490083918423523328";
+    static {
+        Properties props = Properties.getProps();
 
-    public static class ChannelIds {
-        public static final String STANDINGS_REPORT_CHANNEL = "519673800648818708";
-        public static final String SUPER_ADMIN_CHANNEL = "498737165396606976";
-        public static final String ROSS_LOG_CHANNEL = "526274368444039196";
-        public static final String DRAFT_ME_CHANNEL = "516029333844918273";
-        public static final String REGISTER_HERE_CHANNEL = "516030074714193940";
-        public static final String PLAYER_LIST_CHANNEL = "515607427996188701";
-        public static final String OVERALL_STANDINGS_CHANNEL = "516033633442856971";
+        NJAL_GUILD_ID = props.njalGuildId;
+        ChannelIds.STANDINGS_REPORT_CHANNEL = props.standingsReportChannel;
+        ChannelIds.ROSS_LOG_CHANNEL = props.rossLogChannel;
+        ChannelIds.DRAFT_ME_CHANNEL = props.draftMeChannel;
+        ChannelIds.REGISTER_CHANNEL = props.registerChannel;
+        ChannelIds.PLAYER_LIST_CHANNEL = props.playerListChannel;
+        ChannelIds.OVERALL_STANDINGS_CHANNEL = props.overallStandingsChannel;
+        CategoryIds.DRAFT_ME_CAT_ID = props.draftMeCatId;
+        RoleIds.ADMIN = props.admin;
     }
 
-    public static class UserIds {
-        public static final String SNOOBER_DISCORD_ID = "107204118279372800";
-        public static final String PINGWIN_DISCORD_ID = "118621316143120384";
+    public static final String NJAL_GUILD_ID;
+
+    public static final class ChannelIds {
+        public static String STANDINGS_REPORT_CHANNEL;
+        public static String ROSS_LOG_CHANNEL;
+        public static String DRAFT_ME_CHANNEL;
+        public static String REGISTER_CHANNEL;
+        public static String PLAYER_LIST_CHANNEL;
+        public static String OVERALL_STANDINGS_CHANNEL;
     }
 
-    public static class CategoryIds {
-        public static final String DRAFT_ME_CAT_ID = "516029124825841665";
+    public static final class CategoryIds {
+        public static String DRAFT_ME_CAT_ID;
     }
 
-    public static class RoleIds {
-        public static final String ADMIN = "490085860188880917";
+    public static final class RoleIds {
+        public static String ADMIN;
     }
 }
