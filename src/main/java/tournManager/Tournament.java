@@ -35,6 +35,10 @@ public class Tournament {
         return tournament;
     }
 
+    static void endTourn() {
+        tournament = null;
+    }
+
     void checkNextRound() {
         roundManager.checkNextRound();
     }

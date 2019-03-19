@@ -2,13 +2,25 @@ package helpers;
 
 import constants.SQLTableNames;
 import helpers.MyDBConnection;
+import tournManager.Game;
+import tournManager.Player;
+import tournManager.Round;
+import tournManager.Tournament;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 public class PlayerLookup {
+    public static Player getCurrentOpponent(int playerId) {
+        Tournament tournament = Tournament.getOnGoingTourn();
+        Player player = tournament.getPlayerMap().get(playerId);
+        return player.getCurrentOpponent();
+    }
+
     public static int getPlayerId(String discordId) {
         Connection conn = null;
         PreparedStatement prepSt = null;

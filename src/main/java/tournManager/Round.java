@@ -28,11 +28,11 @@ public class Round {
         byePlayer.addBye();
     }
 
-    List<Game> getRoundGames() {
+    public List<Game> getRoundGames() {
         return roundGames;
     }
 
-    Player getByePlayer() {
+    public Player getByePlayer() {
         return byePlayer;
     }
 

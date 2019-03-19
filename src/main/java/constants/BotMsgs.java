@@ -1,6 +1,8 @@
 package constants;
 
+import helpers.PlayerLookup;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import tournManager.Player;
 
 import static discordBot.DiscordBot.njal;
 
@@ -30,6 +32,15 @@ public class BotMsgs {
     static {
         unregisterAllConfirm[0] = "Are you sure you want to unregister all players?";
         unregisterAllConfirm[1] = "Enter `!!confirm` to confirm unregistering all players.";
+    }
+
+    public static String currentOpponent (Player opponent) {
+        if (opponent == null) {
+            return "You have a bye.";
+        } else {
+            String opponentName = PlayerLookup.getDiscordName(PlayerLookup.getDiscordId(opponent.getPlayerId()));
+            return "Your next opponent is: " + opponentName;
+        }
     }
 
     public static String draftMeRoomFoundDM(String channelId) {

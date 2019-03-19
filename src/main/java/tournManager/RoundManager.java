@@ -57,6 +57,7 @@ class RoundManager {
         SendMessage.sendStandings(tournament);
         tournament.archiveTourn();
         RegistrationHandler.unregisterAllPlayers();
+        Tournament.endTourn();
     }
 
     void checkNextRound() {

@@ -3,10 +3,13 @@ package discordBot;
 import constants.BotMsgs;
 import constants.DiscordIds;
 import draftMe.DraftMatcher;
+import helpers.PlayerLookup;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import tournManager.Player;
+import tournManager.ReportResult;
 
 import java.util.List;
 import java.util.Random;
@@ -103,7 +106,20 @@ class MessageReceiver extends ListenerAdapter {
 
         //!won or !win
         if (eventMsgStr.equals("!won") || eventMsgStr.equals("!win")) {
+            ReportResult.reportResult(event, true);
+        }
 
+        //!lost or !lose
+        if (eventMsgStr.equals("!lost") || eventMsgStr.equals("!lose")) {
+            ReportResult.reportResult(event, false);
+        }
+
+        //!nextgame
+        if (eventMsgStr.equals("!nextgame") || eventMsgStr.equals("!next")) {
+            int playerId = PlayerLookup.getPlayerId(event.getAuthor().getId());
+            Player opponent = PlayerLookup.getCurrentOpponent(playerId);
+
+            event.getChannel().sendMessage(BotMsgs.currentOpponent(opponent)).queue();
         }
 
         /*
