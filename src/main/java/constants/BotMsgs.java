@@ -26,6 +26,7 @@ public class BotMsgs {
     public static final String draftMeEntryStarted = "***Draft Me!*** entry started. Please check your direct messages.";
     public static final String notValidMatchCode = "That is not a valid match code.";
     public static final String needToDMRossMatchCode = "You must direct message Ross the bot to accept a ***Draft Me!*** match.";
+    public static final String tournStarted = "Tournament has been started.";
     public static final String[] unregisterAllConfirm = new String[2];
     private static final String NJAL_TITLE = ":small_red_triangle_down: **Nicely Jobbed! :thumbsup: Artifact League!** :small_red_triangle_down:";
 

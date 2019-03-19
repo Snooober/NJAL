@@ -10,6 +10,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import tournManager.Player;
 import tournManager.ReportResult;
+import tournManager.Tournament;
 
 import java.util.List;
 import java.util.Random;
@@ -134,6 +135,20 @@ class MessageReceiver extends ListenerAdapter {
                     RegistrationHandler.unregisterPlayer(event, discordId);
                 }
 
+                //!!reportwin [discord id]
+                if (eventMsgStr.matches("!!reportwin \\d*")) {
+                    String discordId = eventMsgStr.substring(12);
+                    int playerId = PlayerLookup.getPlayerId(discordId);
+                    ReportResult.reportResult(event, playerId, true);
+                }
+
+                //!!reportloss [discord id]
+                if (eventMsgStr.matches("!!reportloss \\d*")) {
+                    String discordId = eventMsgStr.substring(13);
+                    int playerId = PlayerLookup.getPlayerId(discordId);
+                    ReportResult.reportResult(event, playerId, false);
+                }
+
                 //!!lockreg
                 if (eventMsgStr.equals("!!reg lock")) {
                     RegistrationHandler.lockReg();
@@ -172,6 +187,13 @@ class MessageReceiver extends ListenerAdapter {
                 if (eventMsgStr.matches("!!send\\smsg\\sregistered\\s.*")) {
                     String message = eventMsgStr.split("\\s", 4)[3];
                     SendMessage.directMsgRegPlayers(message);
+                }
+
+                //start tournament
+                //TODO add confirmation
+                if (eventMsgStr.equals("!!startTourn")) {
+                    Tournament.newTournament();
+                    event.getChannel().sendMessage(BotMsgs.tournStarted).queue();
                 }
 
                 //!!unregister all

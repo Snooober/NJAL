@@ -86,7 +86,7 @@ public class DraftMatcher {
         pendMatchCodes.remove(matchCode);
     }
 
-    static void purgeUser(User user) {
+    public static void purgeUser(User user) {
         //close DraftRoom's
         List<DraftRoom> queueDeletion = new ArrayList<>();
         Iterator<DraftRoom> draftRoomsIt = draftRooms.iterator();
