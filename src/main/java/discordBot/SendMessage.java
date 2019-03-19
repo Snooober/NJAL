@@ -11,9 +11,7 @@ import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import tournManager.Player;
-import tournManager.PlayerStandingsComparator;
-import tournManager.Tournament;
+import tournManager.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -85,40 +83,40 @@ public class SendMessage {
         }
     }
 
-    public static synchronized void updateRegPlayerMsg() {
-        List<String> messageList = regPlayerMsg();
-        Iterator<String> messageListIt = messageList.iterator();
+    private static synchronized void updateDiscordChannelMsgs(List<String> messageList, TextChannel channel) {
+        List<Message> channelMsgs = channel.getHistory().getRetrievedHistory();
 
-        TextChannel playerListChan = njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL);
-        MessageHistory msgHist = playerListChan.getHistoryAfter(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL, 100).complete();
-        List<Message> discordPlayerListMessages = msgHist.getRetrievedHistory();
-
-        int numMsgExist = discordPlayerListMessages.size();
+        int numMsgExist = channelMsgs.size();
         int numMsgToSend = messageList.size();
         int msgToSendMinusExist = numMsgToSend - numMsgExist;
 
+        Iterator<String> messageListIt = messageList.iterator();
         if (msgToSendMinusExist >= 0) {
             //edit existing messages
             for (int i = numMsgExist - 1; i >= 0; i--) {
-                String msgId = discordPlayerListMessages.get(i).getId();
-                njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).editMessageById(msgId, messageListIt.next()).queue();
+                String msgId = channelMsgs.get(i).getId();
+                channel.editMessageById(msgId, messageListIt.next()).queue();
             }
             //send new messages
             for (int i = 0; i < msgToSendMinusExist; i++) {
-                njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).sendMessage(messageListIt.next()).queue();
+                channel.sendMessage(messageListIt.next()).queue();
             }
         } else {
             //edit existing messages
             for (int i = numMsgExist - 1; i >= numMsgExist - numMsgToSend; i--) {
-                String msgId = discordPlayerListMessages.get(i).getId();
-                njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).editMessageById(msgId, messageListIt.next()).queue();
+                String msgId = channelMsgs.get(i).getId();
+                channel.editMessageById(msgId, messageListIt.next()).queue();
             }
             //delete remaining messages
             for (int i = (numMsgExist - numMsgToSend) - 1; i >= 0; i--) {
-                String msgId = discordPlayerListMessages.get(i).getId();
-                njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL).deleteMessageById(msgId).queue();
+                String msgId = channelMsgs.get(i).getId();
+                channel.deleteMessageById(msgId).queue();
             }
         }
+    }
+
+    public static void updateRegPlayerMsg() {
+        updateDiscordChannelMsgs(regPlayerMsg(), njal.getTextChannelById(DiscordIds.ChannelIds.PLAYER_LIST_CHANNEL));
     }
 
     private static List<String> parseTournLinks(MessageReceivedEvent event) {
@@ -408,6 +406,103 @@ public class SendMessage {
         fullMessageList.add(message);
 
         return fullMessageList;
+    }
+
+    public static void updateOverallStatsMsgs() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet resultSet = null;
+
+        try {
+            conn = MyDBConnection.getConnection();
+            String sql;
+
+            sql = "SELECT player_id, discord_name, wins, games_played, byes, tourn_wins FROM ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, SQLTableNames.SQL_PLAYER_INFO);
+            resultSet = stmt.executeQuery();
+
+            List<PlayerRank> playerRankList = new ArrayList<>();
+            while (resultSet.next()) {
+                PlayerRank playerRank = new PlayerRank(resultSet.getInt("player_id"), resultSet.getString("discord_name"), resultSet.getInt("wins"), resultSet.getInt("games_played"), resultSet.getInt("byes"), resultSet.getInt("tourn_wins"));
+                playerRankList.add(playerRank);
+            }
+
+            //sort by rank (tournament wins, then by wins-games)
+            playerRankList.sort(new TournWinsComparator());
+
+            //make columns and columnsArray
+            List<String> rankColumn = new ArrayList<>();
+            List<String> nameColumn = new ArrayList<>();
+            List<String> winsColumn = new ArrayList<>();
+            List<String> lossColumn = new ArrayList<>();
+            List<String> tournWinsColumn = new ArrayList<>();
+            List<List<String>> columnsArray = new ArrayList<>();
+
+            //add labels for first row
+            rankColumn.add("Rank");
+            nameColumn.add("Name");
+            winsColumn.add("Wins");
+            lossColumn.add("Losses");
+            tournWinsColumn.add("Tournament Wins");
+
+            //add each row
+            Iterator<PlayerRank> playerIterator = playerRankList.iterator();
+            Integer rank = 1;
+            while (playerIterator.hasNext()) {
+                PlayerRank player = playerIterator.next();
+                String discordName = player.getDiscordName();
+                Integer wins = player.getWins();
+                Integer losses = (player.getGamesPlayed() - player.getWins());
+                Integer tournWins = player.getTournWins();
+
+                rankColumn.add(rank.toString());
+                nameColumn.add(discordName);
+                winsColumn.add(wins.toString());
+                lossColumn.add(losses.toString());
+                tournWinsColumn.add(tournWins.toString());
+
+                rank++;
+            }
+
+            //add columns to columns array
+            columnsArray.add(rankColumn);
+            columnsArray.add(nameColumn);
+            columnsArray.add(winsColumn);
+            columnsArray.add(lossColumn);
+            columnsArray.add(tournWinsColumn);
+
+            //build entries into array for discord bot to send
+            List<String> messageArray = listMessageBuilder(columnsArray);
+
+            //update Overall Standings channel message(s)
+            updateDiscordChannelMsgs(messageArray, njal.getTextChannelById(DiscordIds.ChannelIds.OVERALL_STANDINGS_CHANNEL));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void sendStandings(Tournament tournament) {

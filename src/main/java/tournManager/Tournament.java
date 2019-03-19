@@ -76,8 +76,9 @@ public class Tournament {
         sqlUpdater.update();
     }
 
-    void updateOverallStats() {
+    void updateOverallStatsSQL() {
         sqlUpdater.updateOverallStats();
+
     }
 
     int getCurrentGameId() {

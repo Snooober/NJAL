@@ -12,15 +12,12 @@ public class DiscordIds {
         public static final String DRAFT_ME_CHANNEL = "516029333844918273";
         public static final String REGISTER_HERE_CHANNEL = "516030074714193940";
         public static final String PLAYER_LIST_CHANNEL = "515607427996188701";
+        public static final String OVERALL_STANDINGS_CHANNEL = "516033633442856971";
     }
 
     public static class UserIds {
         public static final String SNOOBER_DISCORD_ID = "107204118279372800";
         public static final String PINGWIN_DISCORD_ID = "118621316143120384";
-    }
-
-    public static class MessageIds {
-        public static final String PLAYERLIST_MESSAGE_ID = "519667424451100673";
     }
 
     public static class CategoryIds {

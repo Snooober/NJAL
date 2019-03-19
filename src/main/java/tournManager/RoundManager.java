@@ -53,7 +53,8 @@ class RoundManager {
     }
 
     private void endTourn() {
-        tournament.updateOverallStats();
+        tournament.updateOverallStatsSQL();
+        SendMessage.updateOverallStatsMsgs();
         SendMessage.sendStandings(tournament);
         tournament.archiveTourn();
         RegistrationHandler.unregisterAllPlayers();
