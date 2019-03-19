@@ -1,7 +1,6 @@
 package tournManager;
 
 import discordBot.RegistrationHandler;
-import discordBot.SendMessage;
 
 import java.util.ArrayList;
 import java.util.List;

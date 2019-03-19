@@ -1,6 +1,5 @@
 package tournManager;
 
-import com.mysql.jdbc.MySQLConnection;
 import constants.SQLTableNames;
 import helpers.MyDBConnection;
 

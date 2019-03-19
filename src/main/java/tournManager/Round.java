@@ -22,18 +22,18 @@ public class Round {
         roundGames.add(game);
     }
 
-    void setByePlayer(Player byePlayer) {
-        this.byePlayer = byePlayer;
-        byePlayer.setCurrentGame(null);
-        byePlayer.addBye();
-    }
-
     public List<Game> getRoundGames() {
         return roundGames;
     }
 
     public Player getByePlayer() {
         return byePlayer;
+    }
+
+    void setByePlayer(Player byePlayer) {
+        this.byePlayer = byePlayer;
+        byePlayer.setCurrentGame(null);
+        byePlayer.addBye();
     }
 
     public int getRoundId() {

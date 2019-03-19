@@ -2,8 +2,8 @@ package discordBot;
 
 import constants.BotMsgs;
 import constants.SQLTableNames;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import helpers.MyDBConnection;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

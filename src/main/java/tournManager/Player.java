@@ -7,10 +7,6 @@ public class Player {
     private int numByes;
     private Game currentGame;
 
-    void setCurrentGame(Game currentGame) {
-        this.currentGame = currentGame;
-    }
-
     Player(int playerId) {
         this.playerId = playerId;
         this.numWins = 0;
@@ -48,7 +44,7 @@ public class Player {
     }
 
     public Player getCurrentOpponent() {
-        if (currentGame==null) {
+        if (currentGame == null) {
             return null;
         }
 
@@ -63,6 +59,10 @@ public class Player {
 
     Game getCurrentGame() {
         return currentGame;
+    }
+
+    void setCurrentGame(Game currentGame) {
+        this.currentGame = currentGame;
     }
 
     WinStatus setResult(boolean result) {

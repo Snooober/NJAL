@@ -1,7 +1,5 @@
 package tournManager;
 
-import org.apache.logging.log4j.util.PropertySource;
-
 import java.util.Comparator;
 
 public class PlayerGameAssignmentComparator implements Comparator<Player> {

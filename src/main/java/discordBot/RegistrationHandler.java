@@ -3,6 +3,8 @@ package discordBot;
 import constants.BotMsgs;
 import constants.DiscordIds;
 import constants.SQLTableNames;
+import helpers.MyDBConnection;
+import helpers.PlayerLookup;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -16,8 +18,6 @@ import net.dv8tion.jda.core.events.user.update.GenericUserUpdateEvent;
 import net.dv8tion.jda.core.events.user.update.UserUpdateDiscriminatorEvent;
 import net.dv8tion.jda.core.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.core.managers.GuildController;
-import helpers.MyDBConnection;
-import helpers.PlayerLookup;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -35,7 +35,7 @@ public class BotMsgs {
         unregisterAllConfirm[1] = "Enter `!!confirm` to confirm unregistering all players.";
     }
 
-    public static String currentOpponent (Player opponent) {
+    public static String currentOpponent(Player opponent) {
         if (opponent == null) {
             return "You have a bye.";
         } else {
