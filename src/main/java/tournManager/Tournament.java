@@ -62,6 +62,8 @@ public class Tournament {
         }
     }
 
+    //TODO load tournament. remember to lock reg
+
     void saveTourn() {
         sqlUpdater.saveTourn();
     }

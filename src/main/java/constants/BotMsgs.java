@@ -19,20 +19,33 @@ public class BotMsgs {
     public static final String steamIdLinkedMultiple = "Steam ID was updated for more than one discord account. See player_info table.";
     public static final String steamIdProblemLinking = "There was a problem linking the steam ID.";
     public static final String tournLinksNotFound = "\"tourn_links.csv\" was not found.";
-    public static final String unregisteredAllPlayers = "All players have been unregistered.";
+
     public static final String steamConnectedAndRegDM = "Your Steam ID has been linked and you have been registered for the tournament!";
     public static final String matchPairMade = "Match completed! Finding another pair of players...";
     public static final String draftMeRoomClosedDM = "Your ***Draft Me!*** room has been closed.";
     public static final String draftMeEntryStarted = "***Draft Me!*** entry started. Please check your direct messages.";
     public static final String notValidMatchCode = "That is not a valid match code.";
     public static final String needToDMRossMatchCode = "You must direct message Ross the bot to accept a ***Draft Me!*** match.";
+    public static final String nothingToConfirm = "Time has expired since your prompt to confirm a command (6 seconds) or there was nothing to confirm.";
     public static final String tournStarted = "Tournament has been started.";
+    public static final String directMsgToRegSent = "Direct message has been sent to all registered players.";
+    public static final String tournInvitesSent = "Tournament invites have been sent.";
+    public static final String unregisteredAllPlayers = "All players have been unregistered.";
     public static final String[] unregisterAllConfirm = new String[2];
+    public static final String[] startTournConfirm = new String[2];
+    public static final String[] sendTournInvitesConfirm = new String[2];
+    public static final String[] sendMsgRegisteredConfirm = new String[2];
     private static final String NJAL_TITLE = ":small_red_triangle_down: **Nicely Jobbed! :thumbsup: Artifact League!** :small_red_triangle_down:";
 
     static {
         unregisterAllConfirm[0] = "Are you sure you want to unregister all players?";
-        unregisterAllConfirm[1] = "Enter `!!confirm` to confirm unregistering all players.";
+        unregisterAllConfirm[1] = "Enter `!!confirm` to unregister all players.";
+        startTournConfirm[0] = "Are you sure you would like Ross the bot to start a new tournament?";
+        startTournConfirm[1] = "Enter `!!confirm` to start the new tournament.";
+        sendTournInvitesConfirm[0] = "Are you sure you want to send invite links to all registered players?";
+        sendTournInvitesConfirm[1] = "Enter `!!confirm` to send tournament invite links from tourn_links.csv to all registered players.";
+        sendMsgRegisteredConfirm[0] = "Are you sure you want to send your direct message to all registered players?";
+        sendMsgRegisteredConfirm[1] = "Enter `!!confirm` to send your direct message to all registered players";
     }
 
     public static String currentOpponent(Player opponent) {

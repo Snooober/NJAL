@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 class MessageReceiver extends ListenerAdapter {
     private boolean confirm = false;
+    private ConfirmCommand confirmCommand = null;
 
     private boolean isAdmin(MessageReceivedEvent event) {
         List<Role> memberRoles = event.getMember().getRoles();
@@ -42,7 +43,7 @@ class MessageReceiver extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public synchronized void onMessageReceived(MessageReceivedEvent event) {
         boolean directMessage = event.getChannelType().equals(ChannelType.PRIVATE);
         String eventMsgStr = event.getMessage().getContentRaw();
         String eventChanName = event.getChannel().getName();
@@ -177,52 +178,82 @@ class MessageReceiver extends ListenerAdapter {
                 }
 
                 //!!send tourn invites
-                //TODO add confirmation
                 if (eventMsgStr.equals("!!send tourn invites")) {
-                    SendMessage.sendTournInvites(event);
+                    startConfirmTimer(ConfirmCommand.SEND_TOURN_INVITES);
+                    event.getChannel().sendMessage(BotMsgs.sendTournInvitesConfirm[0]).queue();
+                    event.getChannel().sendMessage(BotMsgs.sendTournInvitesConfirm[1]).queue();
                 }
 
+
                 //!!send msg registered [message]
-                //TODO add confirmation
+                String adminMsgToReg = null;
                 if (eventMsgStr.matches("!!send\\smsg\\sregistered\\s.*")) {
-                    String message = eventMsgStr.split("\\s", 4)[3];
-                    SendMessage.directMsgRegPlayers(message);
+                    adminMsgToReg = eventMsgStr.split("\\s", 4)[3];
+                    startConfirmTimer(ConfirmCommand.SEND_MSG_REGISTERED);
+                    event.getChannel().sendMessage(BotMsgs.sendMsgRegisteredConfirm[0]).queue();
+                    event.getChannel().sendMessage(BotMsgs.sendMsgRegisteredConfirm[1]).queue();
                 }
 
                 //start tournament
-                //TODO add confirmation
                 if (eventMsgStr.equals("!!startTourn")) {
-                    Tournament.newTournament();
-                    event.getChannel().sendMessage(BotMsgs.tournStarted).queue();
+                    startConfirmTimer(ConfirmCommand.START_TOURNAMENT);
+                    event.getChannel().sendMessage(BotMsgs.startTournConfirm[0]).queue();
+                    event.getChannel().sendMessage(BotMsgs.startTournConfirm[1]).queue();
                 }
 
                 //!!unregister all
                 if (eventMsgStr.equals("!!unregister all")) {
-                    confirm = true;
+                    startConfirmTimer(ConfirmCommand.UNREGISTER_ALL);
                     event.getChannel().sendMessage(BotMsgs.unregisterAllConfirm[0]).queue();
                     event.getChannel().sendMessage(BotMsgs.unregisterAllConfirm[1]).queue();
-
-                    class ConfirmFalseTask extends TimerTask {
-                        @Override
-                        public void run() {
-                            confirm = false;
-                        }
-                    }
-                    Timer timer = new Timer();
-                    timer.schedule(new ConfirmFalseTask(), 6 * 1000);
                 }
 
                 //!!confirm
                 if (eventMsgStr.equals("!!confirm")) {
                     if (confirm) {
-                        RegistrationHandler.unregisterAllPlayers();
-                        event.getChannel().sendMessage(BotMsgs.unregisteredAllPlayers).queue();
+                        switch (confirmCommand) {
+                            case UNREGISTER_ALL:
+                                RegistrationHandler.unregisterAllPlayers();
+                                event.getChannel().sendMessage(BotMsgs.unregisteredAllPlayers).queue();
+                                break;
+                            case START_TOURNAMENT:
+                                Tournament.newTournament();
+                                event.getChannel().sendMessage(BotMsgs.tournStarted).queue();
+                                break;
+                            case SEND_TOURN_INVITES:
+                                SendMessage.sendTournInvites(event);
+                                event.getChannel().sendMessage(BotMsgs.tournInvitesSent).queue();
+                                break;
+                            case SEND_MSG_REGISTERED:
+                                SendMessage.directMsgRegPlayers(adminMsgToReg);
+                                event.getChannel().sendMessage(BotMsgs.directMsgToRegSent).queue();
+                                break;
+                        }
+
                         confirm = false;
+                        confirmCommand = null;
+                    } else {
+                        event.getChannel().sendMessage(BotMsgs.nothingToConfirm).queue();
                     }
                 }
             }
         }
 
         clearMsgs(event);
+    }
+
+    private void startConfirmTimer(ConfirmCommand confirmCommand) {
+        this.confirm = true;
+        this.confirmCommand = confirmCommand;
+
+        Timer timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                confirm = false;
+            }
+        };
+
+        timer.schedule(timerTask, 6 * 1000);
     }
 }
