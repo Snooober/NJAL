@@ -13,7 +13,7 @@ import net.dv8tion.jda.core.entities.Role;
 import javax.security.auth.login.LoginException;
 
 public class DiscordBot {
-    private static JDA rossBot;
+    static JDA rossBot;
     static Role admin;
     public static Guild njal;
 
