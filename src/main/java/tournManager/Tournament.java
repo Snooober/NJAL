@@ -30,6 +30,17 @@ public class Tournament {
         tournament.initTournament();
     }
 
+    public static boolean loadTournament(int roundId) {
+        RegistrationHandler.lockReg();
+        Tournament loadedTourn = SQLUpdater.loadTourn(roundId);
+        if (loadedTourn != null) {
+            tournament = loadedTourn;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public static Tournament getOnGoingTourn() {
         return tournament;
     }
@@ -61,8 +72,6 @@ public class Tournament {
             maxRounds++;
         }
     }
-
-    //TODO load tournament. remember to lock reg
 
     void saveTourn() {
         sqlUpdater.saveTourn();

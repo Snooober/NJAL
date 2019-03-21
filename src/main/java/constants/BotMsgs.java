@@ -26,6 +26,8 @@ public class BotMsgs {
     public static final String draftMeEntryStarted = "***Draft Me!*** entry started. Please check your direct messages.";
     public static final String notValidMatchCode = "That is not a valid match code.";
     public static final String needToDMRossMatchCode = "You must direct message Ross the bot to accept a ***Draft Me!*** match.";
+    public static final String tournLoadedSuccesfully = "Tournament has been loaded successfully.";
+    public static final String tournLoadFail = "Tournament has failed to load.";
     public static final String nothingToConfirm = "Time has expired since your prompt to confirm a command (6 seconds) or there was nothing to confirm.";
     public static final String tournStarted = "Tournament has been started.";
     public static final String directMsgToRegSent = "Direct message has been sent to all registered players.";
@@ -46,6 +48,20 @@ public class BotMsgs {
         sendTournInvitesConfirm[1] = "Enter `!!confirm` to send tournament invite links from tourn_links.csv to all registered players.";
         sendMsgRegisteredConfirm[0] = "Are you sure you want to send your direct message to all registered players?";
         sendMsgRegisteredConfirm[1] = "Enter `!!confirm` to send your direct message to all registered players";
+    }
+
+    public static String[] loadTournConfirm(int roundId) {
+        String[] loadTournConfirm = new String[2];
+        loadTournConfirm[0] = "Are you sure you want to load the tournament at round " + roundId + "?";
+        loadTournConfirm[1] = "Enter `!!confirm` to load the tournament at round " + roundId + ".";
+        return loadTournConfirm;
+    }
+
+    public static String[] loadTournConfirm() {
+        String[] loadTournConfirm = new String[2];
+        loadTournConfirm[0] = "Are you sure you want to load the most recently saved round of the tournament?";
+        loadTournConfirm[1] = "Enter `!!confirm` to load the most recently saved round of the tournament.";
+        return loadTournConfirm;
     }
 
     public static String currentOpponent(Player opponent) {

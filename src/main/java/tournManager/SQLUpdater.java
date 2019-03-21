@@ -19,6 +19,64 @@ class SQLUpdater {
         this.tournament = tournament;
     }
 
+    static Tournament loadTourn(int roundId) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet resultSet = null;
+        Tournament loadedTourn = null;
+
+        try {
+            conn = MyDBConnection.getConnection();
+            String sql;
+
+            if (roundId == -1) {
+                sql = "SELECT * FROM ? ORDER BY current_round_id DESC;";
+                stmt = conn.prepareStatement(sql);
+                stmt.setString(1, SQLTableNames.SQL_CURRENT_T);
+                resultSet = stmt.executeQuery();
+            } else {
+                sql = "SELECT * FROM ? WHERE current_round_id = ?;";
+                stmt = conn.prepareStatement(sql);
+                stmt.setString(1, SQLTableNames.SQL_CURRENT_T);
+                stmt.setInt(2, roundId);
+                resultSet = stmt.executeQuery();
+            }
+
+            if (resultSet.next()) {
+                loadedTourn = (Tournament) resultSet.getObject("tourn");
+            }
+
+            resultSet.close();
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return loadedTourn;
+    }
+
     void saveTourn() {
         Connection conn = null;
         PreparedStatement stmt = null;

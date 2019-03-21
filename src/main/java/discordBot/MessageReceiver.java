@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 class MessageReceiver extends ListenerAdapter {
     private boolean confirm = false;
     private ConfirmCommand confirmCommand = null;
+    private int roundIdToLoad;
 
     private boolean isAdmin(MessageReceivedEvent event) {
         List<Role> memberRoles = event.getMember().getRoles();
@@ -184,7 +185,6 @@ class MessageReceiver extends ListenerAdapter {
                     event.getChannel().sendMessage(BotMsgs.sendTournInvitesConfirm[1]).queue();
                 }
 
-
                 //!!send msg registered [message]
                 String adminMsgToReg = null;
                 if (eventMsgStr.matches("!!send\\smsg\\sregistered\\s.*")) {
@@ -208,6 +208,23 @@ class MessageReceiver extends ListenerAdapter {
                     event.getChannel().sendMessage(BotMsgs.unregisterAllConfirm[1]).queue();
                 }
 
+                //!!loadTourn #
+                if (eventMsgStr.matches("!!loadTourn\\s\\d+") || eventMsgStr.equals("!!loadTourn")) {
+                    startConfirmTimer(ConfirmCommand.LOAD_TOURN);
+
+                    String[] response;
+                    if (eventMsgStr.matches("!!loadTourn\\s\\d+")) {
+                        roundIdToLoad = Integer.parseInt(eventMsgStr.substring(12));
+                        response = BotMsgs.loadTournConfirm(roundIdToLoad);
+                    } else {
+                        //setting "roundIdToLoad = -1" returns the most recent round (highest current_round_id in SQL_CURRENT_T)
+                        roundIdToLoad = -1;
+                        response = BotMsgs.loadTournConfirm();
+                    }
+                    event.getChannel().sendMessage(response[0]).queue();
+                    event.getChannel().sendMessage(response[1]).queue();
+                }
+
                 //!!confirm
                 if (eventMsgStr.equals("!!confirm")) {
                     if (confirm) {
@@ -227,6 +244,13 @@ class MessageReceiver extends ListenerAdapter {
                             case SEND_MSG_REGISTERED:
                                 SendMessage.directMsgRegPlayers(adminMsgToReg);
                                 event.getChannel().sendMessage(BotMsgs.directMsgToRegSent).queue();
+                                break;
+                            case LOAD_TOURN:
+                                if (Tournament.loadTournament(roundIdToLoad)) {
+                                    event.getChannel().sendMessage(BotMsgs.tournLoadedSuccesfully).queue();
+                                } else {
+                                    event.getChannel().sendMessage(BotMsgs.tournLoadFail).queue();
+                                }
                                 break;
                         }
 
