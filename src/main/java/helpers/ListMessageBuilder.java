@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ListMessageBuilder {
-    List<List<String>> columnList;
-    List<String> fullMsgList;
+    private List<String> fullMsgList;
+    private List<ColumnElement> columnList;
 
     public ListMessageBuilder() {
         columnList = new ArrayList<>();
@@ -13,13 +13,34 @@ public class ListMessageBuilder {
     }
 
     public ListMessageBuilder(List<List<String>> columnList) {
-        this.columnList = columnList;
-        fullMsgList = new ArrayList<>();
+        for (:
+             ){
+
+        }
+
+
     }
 
     public void addColumn(List<String> column) {
-        columnList.add(column);
+        columnList.add(new ColumnElement(column));
     }
 
-    public void addColumn(List<String> column, )
+    public void addColumn(List<String> column, ColumnType columnType) {
+        columnList.add(new ColumnElement(column, columnType));
+    }
+
+    private class ColumnElement {
+        private List<String> entries;
+        private ColumnType columnType;
+
+        private ColumnElement(List<String> entries) {
+            this.entries = entries;
+            this.columnType = ColumnType.DEFAULT;
+        }
+
+        private ColumnElement(List<String> entries, ColumnType columnType) {
+            this.entries = entries;
+            this.columnType = columnType;
+        }
+    }
 }
