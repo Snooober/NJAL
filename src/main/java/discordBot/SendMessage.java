@@ -371,6 +371,9 @@ public class SendMessage {
         List<String> fullMessageList = new ArrayList<>();
 
         //make each entry the same size for each column
+        //TODO make this compatible with regPlayerMessage
+        //TODO do not adjust size of steamProfCol
+        //TODO include title parameter (overload method)
         ListIterator<List<String>> columnsListIt = columnsList.listIterator();
         while (columnsListIt.hasNext()) {
             List<String> column = columnsListIt.next();
@@ -381,12 +384,14 @@ public class SendMessage {
         String message = "``` ```";
         int numRows = columnsList.get(0).size();
         int rowIndex = 0;
-        String potentialMsg = "";
+        //String potentialMsg = "";
+        String potentialMsg = "`";
         while (rowIndex < numRows) {
             //for each row, iterate through columns and add entries to potentialMsg
             columnsListIt = columnsList.listIterator();
             while (columnsListIt.hasNext()) {
                 List<String> column = columnsListIt.next();
+                //TODO steamProfCol can't be in code block with `'s
                 potentialMsg = potentialMsg.concat("`" + column.get(rowIndex) + "` ");
             }
             potentialMsg = potentialMsg.trim();
