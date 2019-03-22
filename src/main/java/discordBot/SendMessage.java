@@ -242,7 +242,7 @@ public class SendMessage {
                 String orderReg = Integer.toString(rs_tournPlayers.getInt("order_reg"));
                 int playerId = rs_tournPlayers.getInt("player_id");
 
-                sql_playerInfo = "SELECT player_id, discrim, steam_id, discord_name FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
+                sql_playerInfo = "SELECT discrim, steam_id, discord_name FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
                 prepSt = conn.prepareStatement(sql_playerInfo);
                 prepSt.setInt(1, playerId);
                 rs_playerInfo = prepSt.executeQuery();
