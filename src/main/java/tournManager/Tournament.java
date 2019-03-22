@@ -61,7 +61,7 @@ public class Tournament {
         currentGameId = 0;
 
         roundManager.addRound();
-        sqlUpdater.update();
+        sqlUpdater.updateTournPlayers();
     }
 
     private void initMaxRounds() {
@@ -82,8 +82,8 @@ public class Tournament {
         sqlUpdater.archiveTourn();
     }
 
-    void updateSQL() {
-        sqlUpdater.update();
+    void updateSQLtournPlayers() {
+        sqlUpdater.updateTournPlayers();
     }
 
     void updateOverallStatsSQL() {

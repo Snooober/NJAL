@@ -44,6 +44,6 @@ public class ReportResult {
         }
 
         tournament.checkNextRound();
-        tournament.updateSQL();
+        tournament.updateSQLtournPlayers();
     }
 }
