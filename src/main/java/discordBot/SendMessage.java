@@ -407,7 +407,8 @@ public class SendMessage {
 
             //end of row
             message = message.concat("\n");
-            potentialMsg = "";
+            //potentialMsg = "";
+            potentialMsg = "`";
             rowIndex++;
         }
         fullMessageList.add(message);
