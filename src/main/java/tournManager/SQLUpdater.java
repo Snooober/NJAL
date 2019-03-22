@@ -85,8 +85,6 @@ class SQLUpdater {
             conn = MyDBConnection.getConnection();
             String sql;
 
-            //TODO fix SQL table columns: current_round_id int primary key , tourn blob
-
             sql = "UPDATE ? SET tourn = ? WHERE current_round_id = ?;";
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, SQLTableNames.SQL_CURRENT_T);
@@ -144,8 +142,6 @@ class SQLUpdater {
                 }
             }
 
-            //TODO fix columns for archive_t
-
             //copy current_t to archive_t
             sql = "INSERT INTO ? (tourn_id, date, current_round_id, tourn) SELECT ?, ?, current_round_id, tourn FROM ?;";
             stmt = conn.prepareStatement(sql);
@@ -161,8 +157,6 @@ class SQLUpdater {
             stmt.setString(1, SQLTableNames.SQL_CURRENT_T);
             stmt.executeUpdate();
 
-            //TODO handle tourn_games if we decided to keep the table
-
             //copy tourn_players to new table
             sql = "CREATE table ? SELECT * FROM ?;";
             stmt = conn.prepareStatement(sql);
@@ -176,7 +170,9 @@ class SQLUpdater {
             stmt.setString(1, SQLTableNames.SQL_TOURN_PLAYERS);
             stmt.executeUpdate();
 
-
+            resultSet.close();
+            stmt.close();
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
