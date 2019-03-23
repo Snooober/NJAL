@@ -3,9 +3,7 @@ package discordBot;
 import constants.BotMsgs;
 import constants.DiscordIds;
 import constants.SQLTableNames;
-import helpers.CSVHelper;
-import helpers.MyDBConnection;
-import helpers.PlayerLookup;
+import helpers.*;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -24,7 +22,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import static discordBot.DiscordBot.njal;
 
@@ -211,10 +208,9 @@ public class SendMessage {
     }
 
     private static List<String> regPlayerMsg() {
-        //TODO fix this to use listMessageBuilder()
         Connection conn = null;
         PreparedStatement prepSt = null;
-        List<String> fullMessageArray = new ArrayList<>();
+        List<String> fullMessageArray = null;
 
         try {
             conn = MyDBConnection.getConnection();
@@ -258,60 +254,13 @@ public class SendMessage {
                 steamProfCol.add(steamProf);
             }
 
-            List<List<String>> columnsList = new ArrayList<>();
-            columnsList.add(orderRegCol);
-            columnsList.add(discordNameCol);
-            columnsList.add(discrimCol);
-
-            //make each entry the same size per column
-            ListIterator<List<String>> columnsListIt = columnsList.listIterator();
-            while (columnsListIt.hasNext()) {
-                List<String> column = columnsListIt.next();
-                columnsListIt.set(evenStrLength(column));
-            }
-            //not necessary to adjust size of Steam Profile column
-            columnsList.add(steamProfCol);
-
-            //make full message
-            String message = "```Registered Players```";
-            int numRows = columnsList.get(0).size();
-            int rowIndex = 0;
-            String potentialMsg = "`";
-            while (rowIndex < numRows) {
-                //for each row, iterate through columns and add entries to potentialMsg
-                columnsListIt = columnsList.listIterator();
-                while (columnsListIt.hasNext()) {
-                    List<String> column = columnsListIt.next();
-                    if (column.equals(orderRegCol)) {
-                        potentialMsg = potentialMsg.concat(column.get(rowIndex) + " ");
-                    } else if (column.equals(discordNameCol)) {
-                        potentialMsg = potentialMsg.concat(column.get(rowIndex) + " ");
-                    } else if (column.equals(discrimCol)) {
-                        potentialMsg = potentialMsg.concat(column.get(rowIndex) + "` ");
-                    } else if (column.equals(steamProfCol)) {
-                        if (rowIndex == 0) {
-                            potentialMsg = potentialMsg.concat(column.get(rowIndex));
-                        } else {
-                            potentialMsg = potentialMsg.concat("<" + column.get(rowIndex) + ">");
-                        }
-                    }
-                }
-
-                //max char limit is 2000, so if concatening the potentialMsg to message will be less then 1996, go ahead and concat.
-                //if not, add current message to array and then make a new message for the bot to send
-                if ((message.length() + potentialMsg.length()) <= 1996) {
-                    message = message.concat(potentialMsg);
-                } else {
-                    fullMessageArray.add(message);
-                    message = potentialMsg;
-                }
-
-                //end of a row
-                message = message.concat("\n");
-                potentialMsg = "`";
-                rowIndex++;
-            }
-            fullMessageArray.add(message);
+            DiscordTableBuilder discordTable = new DiscordTableBuilder();
+            discordTable.addColumn(orderRegCol);
+            discordTable.addColumn(discordNameCol);
+            discordTable.addColumn(discrimCol);
+            discordTable.addColumn(steamProfCol, ColumnType.HYPERLINK);
+            discordTable.addTitle("Registered Players");
+            fullMessageArray = discordTable.build();
 
             rs_tournPlayers.close();
             if (rs_playerInfo != null) {
@@ -340,80 +289,6 @@ public class SendMessage {
             }
         }
         return fullMessageArray;
-    }
-
-    private static List<String> evenStrLength(List<String> entries) {
-        int maxSize = 0;
-        ListIterator<String> entriesIt = entries.listIterator();
-        while (entriesIt.hasNext()) {
-            String entry = entriesIt.next();
-            if (entry.length() > maxSize) {
-                maxSize = entry.length();
-            }
-        }
-
-        entriesIt = entries.listIterator();
-        while (entriesIt.hasNext()) {
-            String entry = entriesIt.next();
-            int neededSpaces = maxSize - entry.length();
-
-            for (int i = 0; i < neededSpaces; i++) {
-                entry = entry.concat(" ");
-            }
-            //add zero-width space so that the code block won't trim trailing spaces in discord
-            entry = entry.concat("\u200B");
-            entriesIt.set(entry);
-        }
-        return entries;
-    }
-
-    public static List<String> listMessageBuilder(List<List<String>> columnsList) {
-        List<String> fullMessageList = new ArrayList<>();
-
-        //make each entry the same size for each column
-        //TODO make this compatible with regPlayerMessage
-        //TODO do not adjust size of steamProfCol
-        //TODO include title parameter (overload method)
-        ListIterator<List<String>> columnsListIt = columnsList.listIterator();
-        while (columnsListIt.hasNext()) {
-            List<String> column = columnsListIt.next();
-            columnsListIt.set(SendMessage.evenStrLength(column));
-        }
-
-        //make full message
-        String message = "``` ```";
-        int numRows = columnsList.get(0).size();
-        int rowIndex = 0;
-        //String potentialMsg = "";
-        String potentialMsg = "`";
-        while (rowIndex < numRows) {
-            //for each row, iterate through columns and add entries to potentialMsg
-            columnsListIt = columnsList.listIterator();
-            while (columnsListIt.hasNext()) {
-                List<String> column = columnsListIt.next();
-                //TODO steamProfCol can't be in code block with `'s
-                potentialMsg = potentialMsg.concat("`" + column.get(rowIndex) + "` ");
-            }
-            potentialMsg = potentialMsg.trim();
-
-            //max char limit is 2000, so if concatenating the potentialMsg to message will be less then 1996, go ahead and concat.
-            //if not, add current message to array and then make a new message for the bot to send
-            if ((message.length() + potentialMsg.length()) <= 1996) {
-                message = message.concat(potentialMsg);
-            } else {
-                fullMessageList.add(message);
-                message = potentialMsg;
-            }
-
-            //end of row
-            message = message.concat("\n");
-            //potentialMsg = "";
-            potentialMsg = "`";
-            rowIndex++;
-        }
-        fullMessageList.add(message);
-
-        return fullMessageList;
     }
 
     public static void updateOverallStatsMsgs() {
@@ -479,13 +354,14 @@ public class SendMessage {
             columnsArray.add(winsColumn);
             columnsArray.add(lossColumn);
             columnsArray.add(tournWinsColumn);
-
-            //build entries into array for discord bot to send
-            List<String> messageArray = listMessageBuilder(columnsArray);
+            List<String> messageArray = new DiscordTableBuilder(columnsArray).build();
 
             //update Overall Standings channel message(s)
             updateDiscordChannelMsgs(messageArray, njal.getTextChannelById(DiscordIds.ChannelIds.OVERALL_STANDINGS_CHANNEL));
 
+            resultSet.close();
+            stmt.close();
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -592,9 +468,9 @@ public class SendMessage {
         if (!tournament.onFinalRound()) {
             colList.add(opponentCol);
         }
+        List<String> fullMsgArray = new DiscordTableBuilder(colList).build();
 
         //Send standings
-        List<String> fullMsgArray = listMessageBuilder(colList);
         for (String message :
                 fullMsgArray) {
             njal.getTextChannelById(DiscordIds.ChannelIds.STANDINGS_REPORT_CHANNEL).sendMessage(message).complete();

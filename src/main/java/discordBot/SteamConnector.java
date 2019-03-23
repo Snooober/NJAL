@@ -2,6 +2,7 @@ package discordBot;
 
 import constants.BotMsgs;
 import constants.SQLTableNames;
+import helpers.DiscordTableBuilder;
 import helpers.MyDBConnection;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -148,8 +149,8 @@ class SteamConnector {
             columnsList.add(discrimCol);
             columnsList.add(discordIdCol);
             columnsList.add(steamIdCol);
+            List<String> message = new DiscordTableBuilder(columnsList).build();
 
-            List<String> message = SendMessage.listMessageBuilder(columnsList);
             for (String s : message) {
                 event.getChannel().sendMessage(s).queue();
             }
