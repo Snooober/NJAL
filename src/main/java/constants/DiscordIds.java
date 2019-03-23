@@ -2,6 +2,8 @@ package constants;
 
 public class DiscordIds {
 
+    public static final String NJAL_GUILD_ID;
+
     static {
         Properties props = Properties.getProps();
 
@@ -15,8 +17,6 @@ public class DiscordIds {
         CategoryIds.DRAFT_ME_CAT_ID = props.draftMeCatId;
         RoleIds.ADMIN = props.admin;
     }
-
-    public static final String NJAL_GUILD_ID;
 
     public static final class ChannelIds {
         public static String STANDINGS_REPORT_CHANNEL;
