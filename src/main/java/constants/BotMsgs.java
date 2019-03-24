@@ -11,6 +11,7 @@ public class BotMsgs {
     public static final String dmUnregPlayer = "You have been unregistered from the tournament by an admin.";
     public static final String adminLockedReg = "Registration locked.";
     public static final String adminUnlockedReg = "Registration unlocked.";
+    public static final String regCurrentlyLocked = "*Registration is currently locked*";
     public static final String discordIdNotFound = "Discord ID not found in player_info table.";
     public static final String steamIdAlreadyLinked = "Steam ID already linked to a Discord account.";
     public static final String discordIdhasSteamId = "Discord account is already linked to a Steam ID.";

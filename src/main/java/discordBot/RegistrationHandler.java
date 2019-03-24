@@ -5,10 +5,7 @@ import constants.DiscordIds;
 import constants.SQLTableNames;
 import helpers.MyDBConnection;
 import helpers.PlayerLookup;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.guild.GuildBanEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
@@ -23,6 +20,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import static discordBot.DiscordBot.njal;
 import static discordBot.DiscordBot.rossBot;
@@ -32,10 +30,31 @@ public class RegistrationHandler {
 
     public static void lockReg() {
         regOpen = false;
+
+        TextChannel registerHereChan = njal.getTextChannelById(DiscordIds.ChannelIds.REGISTER_CHANNEL);
+        List<Message> registerChanHist = registerHereChan.getHistory().getRetrievedHistory();
+        for (Message message :
+                registerChanHist) {
+            if (message.getContentRaw().matches(BotMsgs.regCurrentlyLocked)) {
+                //do nothing
+                break;
+            }
+
+            registerHereChan.sendMessage(BotMsgs.regCurrentlyLocked).queue();
+        }
     }
 
-    public static void unlockReg() {
+    static void unlockReg() {
         regOpen = true;
+
+        TextChannel registerHereChan = njal.getTextChannelById(DiscordIds.ChannelIds.REGISTER_CHANNEL);
+        List<Message> registerChanHist = registerHereChan.getHistory().getRetrievedHistory();
+        for (Message message :
+                registerChanHist) {
+            if (message.getContentRaw().matches(BotMsgs.regCurrentlyLocked)) {
+                message.delete().queue();
+            }
+        }
     }
 
     public static synchronized void registerPlayer(MessageReceivedEvent event) {
@@ -405,9 +424,7 @@ public class RegistrationHandler {
             }
 
             rs.close();
-            if (prepSt != null) {
-                prepSt.close();
-            }
+            prepSt.close();
             conn.close();
         } catch (SQLException se) {
             se.printStackTrace();

@@ -155,14 +155,12 @@ class MessageReceiver extends ListenerAdapter {
                 if (eventMsgStr.equals("!!reg lock")) {
                     RegistrationHandler.lockReg();
                     event.getChannel().sendMessage(BotMsgs.adminLockedReg).queue();
-                    //TODO edit message in register-here channel
                 }
 
                 //!!unlock reg
                 if (eventMsgStr.equals("!!reg unlock")) {
                     RegistrationHandler.unlockReg();
                     event.getChannel().sendMessage(BotMsgs.adminUnlockedReg).queue();
-                    //TODO edit message in register-here channel
                 }
 
                 //!!steam connect [discord id][steam id]
