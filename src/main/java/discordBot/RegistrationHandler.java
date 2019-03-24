@@ -106,8 +106,12 @@ public class RegistrationHandler {
                         //find highest order_reg
                         sql = "SELECT order_reg FROM " + SQLTableNames.SQL_TOURN_PLAYERS + " ORDER BY order_reg DESC;";
                         rs = prepSt.executeQuery(sql);
-                        rs.next();
-                        int newOrderReg = rs.getInt("order_reg") + 1;
+                        int newOrderReg;
+                        if (rs.next()) {
+                            newOrderReg = rs.getInt("order_reg") + 1;
+                        } else {
+                            newOrderReg = 0;
+                        }
 
                         //insert into tourn_players
                         sql = "INSERT INTO " + SQLTableNames.SQL_TOURN_PLAYERS + " (player_id, order_reg) VALUES (?, ?);";

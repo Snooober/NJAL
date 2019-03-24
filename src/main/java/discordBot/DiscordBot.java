@@ -21,8 +21,8 @@ public class DiscordBot {
     }
 
     private static void init() {
-        admin = rossBot.getRoleById(DiscordIds.RoleIds.ADMIN);
         njal = rossBot.getGuildById(DiscordIds.NJAL_GUILD_ID);
+        admin = njal.getRoleById(DiscordIds.RoleIds.ADMIN);
     }
 
     static void startRoss() {

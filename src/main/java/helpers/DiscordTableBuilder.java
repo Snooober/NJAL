@@ -67,32 +67,32 @@ public class DiscordTableBuilder {
                     case HYPERLINK:
                         //rowIndex 0 is title row and gets same treatment as ColumnType.DEFAULT
                         if (rowIndex != 0) {
-                            potentialMsg = potentialMsg.concat("<" + columnElement.entries.get(rowIndex) + ">");
+                            potentialMsg = potentialMsg.concat("<" + columnElement.entries.get(rowIndex) + "> ");
                             break;
                         }
                     case DEFAULT:
-                        potentialMsg = potentialMsg.concat("`" + columnElement.entries.get(rowIndex) + "`");
+                        potentialMsg = potentialMsg.concat("`" + columnElement.entries.get(rowIndex) + "` ");
                         break;
                 }
-                //Remove last trailing space
-                potentialMsg = potentialMsg.trim();
-
-                //max char limit is 2000, so if concatening the potentialMsg to message will be less then 1996, go ahead and concat.
-                //if not, add current message to array and then make a new message for the bot to send
-                if ((message.length() + potentialMsg.length()) <= 1996) {
-                    message = message.concat(potentialMsg);
-                } else {
-                    fullMsgList.add(message);
-                    message = potentialMsg;
-                }
-
-                //end of row
-                message = message.concat("\n");
-                potentialMsg = "";
-                rowIndex++;
             }
-            fullMsgList.add(message);
+            //Remove last trailing space
+            potentialMsg = potentialMsg.trim();
+
+            //max char limit is 2000, so if concatenating the potentialMsg to message will be less then 1996, go ahead and concat.
+            //if not, add current message to array and then make a new message for the bot to send
+            if ((message.length() + potentialMsg.length()) <= 1996) {
+                message = message.concat(potentialMsg);
+            } else {
+                fullMsgList.add(message);
+                message = potentialMsg;
+            }
+
+            //end of row
+            message = message.concat("\n");
+            potentialMsg = "";
+            rowIndex++;
         }
+        fullMsgList.add(message);
         return fullMsgList;
     }
 
@@ -101,7 +101,6 @@ public class DiscordTableBuilder {
         while (columnListIt.hasNext()) {
             ColumnElement columnElement = columnListIt.next();
             if (columnElement.columnType.equals(ColumnType.DEFAULT)) {
-                //TODO might need to entries.set()
                 equalStrLength(columnElement.entries);
             }
         }
