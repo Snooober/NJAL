@@ -20,4 +20,4 @@ Create a file "config.properties" in src/main/resources with the following prope
     draftMeCatId (discord category ID for Draft Me! system)
     adminRole (discord role ID for admins)
 
-A discord role must also be created named "Registered". And the bot must be given sufficient permissions.
+A discord role must also be created named "Registered", and the bot must be given sufficient permissions.
