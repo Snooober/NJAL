@@ -1,12 +1,14 @@
 package constants;
 
 import helpers.PlayerLookup;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import tournManager.Player;
 
 import static discordBot.DiscordBot.njal;
 
 public class BotMsgs {
+    public static final String noTourn = "There is no on-going tournament.";
     public static final String regLocked = "Registration is currently locked.";
     public static final String dmUnregPlayer = "You have been unregistered from the tournament by an admin.";
     public static final String adminLockedReg = "Registration locked.";
@@ -20,7 +22,6 @@ public class BotMsgs {
     public static final String steamIdLinkedMultiple = "Steam ID was updated for more than one discord account. See player_info table.";
     public static final String steamIdProblemLinking = "There was a problem linking the steam ID.";
     public static final String tournLinksNotFound = "\"tourn_links.csv\" was not found.";
-
     public static final String steamConnectedAndRegDM = "Your Steam ID has been linked and you have been registered for the tournament!";
     public static final String matchPairMade = "Match completed! Finding another pair of players...";
     public static final String draftMeRoomClosedDM = "Your ***Draft Me!*** room has been closed.";
@@ -123,9 +124,13 @@ public class BotMsgs {
     }
 
     public static String wasNotReg(String discordId) {
-        String name = njal.getMemberById(discordId).getUser().getName();
-        return name + " was not registered for the tournament.";
-
+        Member member = njal.getMemberById(discordId);
+        if (member == null) {
+            return "Player was not found.";
+        } else {
+            String name = member.getUser().getName();
+            return name + " was not registered for the tournament.";
+        }
     }
 
     public static String playerUnreg(String discordName) {

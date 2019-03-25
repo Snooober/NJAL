@@ -22,6 +22,7 @@ class MessageReceiver extends ListenerAdapter {
     private boolean confirm = false;
     private ConfirmCommand confirmCommand = null;
     private int roundIdToLoad;
+    private String adminMsgToReg = null;
 
     private boolean isAdmin(MessageReceivedEvent event) {
         List<Role> memberRoles = event.getMember().getRoles();
@@ -108,10 +109,13 @@ class MessageReceiver extends ListenerAdapter {
 
         //!nextgame
         if (eventMsgStr.equals("!nextgame") || eventMsgStr.equals("!next")) {
-            int playerId = PlayerLookup.getPlayerId(event.getAuthor().getId());
-            Player opponent = PlayerLookup.getCurrentOpponent(playerId);
-
-            event.getChannel().sendMessage(BotMsgs.currentOpponent(opponent)).queue();
+            if (Tournament.getOnGoingTourn() == null) {
+                event.getChannel().sendMessage(BotMsgs.noTourn).queue();
+            } else {
+                int playerId = PlayerLookup.getPlayerId(event.getAuthor().getId());
+                Player opponent = PlayerLookup.getCurrentOpponent(playerId);
+                event.getChannel().sendMessage(BotMsgs.currentOpponent(opponent)).queue();
+            }
         }
 
         //lol
@@ -187,7 +191,6 @@ class MessageReceiver extends ListenerAdapter {
                 }
 
                 //!!send msg registered [message]
-                String adminMsgToReg = null;
                 if (eventMsgStr.matches("!!send\\smsg\\sregistered\\s.*")) {
                     adminMsgToReg = eventMsgStr.split("\\s", 4)[3];
                     startConfirmTimer(ConfirmCommand.SEND_MSG_REGISTERED);
