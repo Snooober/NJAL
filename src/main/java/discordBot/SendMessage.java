@@ -83,7 +83,7 @@ public class SendMessage {
     }
 
     private static synchronized void updateDiscordChannelMsgs(List<String> messageList, TextChannel channel) {
-        List<Message> channelMsgs = channel.getHistory().getRetrievedHistory();
+        List<Message> channelMsgs = channel.getHistory().retrievePast(100).complete();
 
         int numMsgExist = channelMsgs.size();
         int numMsgToSend = messageList.size();

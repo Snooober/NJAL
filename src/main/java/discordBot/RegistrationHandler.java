@@ -32,23 +32,22 @@ public class RegistrationHandler {
         regOpen = false;
 
         TextChannel registerHereChan = njal.getTextChannelById(DiscordIds.ChannelIds.REGISTER_CHANNEL);
-        List<Message> registerChanHist = registerHereChan.getHistory().getRetrievedHistory();
+        List<Message> registerChanHist = registerHereChan.getHistory().retrievePast(100).complete();
         for (Message message :
                 registerChanHist) {
             if (message.getContentRaw().matches(BotMsgs.regCurrentlyLocked)) {
                 //do nothing
-                break;
+                return;
             }
-
-            registerHereChan.sendMessage(BotMsgs.regCurrentlyLocked).queue();
         }
+        registerHereChan.sendMessage(BotMsgs.regCurrentlyLocked).queue();
     }
 
     static void unlockReg() {
         regOpen = true;
 
         TextChannel registerHereChan = njal.getTextChannelById(DiscordIds.ChannelIds.REGISTER_CHANNEL);
-        List<Message> registerChanHist = registerHereChan.getHistory().getRetrievedHistory();
+        List<Message> registerChanHist = registerHereChan.getHistory().retrievePast(100).complete();
         for (Message message :
                 registerChanHist) {
             if (message.getContentRaw().matches(BotMsgs.regCurrentlyLocked)) {
@@ -129,7 +128,7 @@ public class RegistrationHandler {
                         event.getChannel().sendMessage(BotMsgs.playerRegistered(discordName)).queue();
                         SendMessage.updateRegPlayerMsg();
 
-                        //notify super-admin channel
+                        //notify ross-log channel
                         njal.getTextChannelById(DiscordIds.ChannelIds.ROSS_LOG_CHANNEL).sendMessage(BotMsgs.playerRegistered(discordName)).queue();
                     }
                 } else {

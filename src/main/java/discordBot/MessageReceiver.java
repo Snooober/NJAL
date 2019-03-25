@@ -34,7 +34,10 @@ class MessageReceiver extends ListenerAdapter {
             if (event.getMessage().getContentRaw().matches("!.*")) {
                 event.getMessage().delete().queueAfter(30, TimeUnit.SECONDS);
             } else if (event.getAuthor().isBot()) {
-                event.getMessage().delete().queueAfter(30, TimeUnit.SECONDS);
+                //delete messages except for reg locked/unlocked indicator
+                if (!event.getMessage().getContentRaw().matches("Registration is ")) {
+                    event.getMessage().delete().queueAfter(30, TimeUnit.SECONDS);
+                }
             } else if (isAdmin(event)) {
                 //do not delete
             } else {
@@ -93,20 +96,6 @@ class MessageReceiver extends ListenerAdapter {
             }
         }
 
-        //lol
-        if ((eventMsgStr.toLowerCase().matches(".*bot.*") && eventMsgStr.toLowerCase().matches(".*hearthstone.*")) || (eventMsgStr.toLowerCase().matches(".*ross.*") && eventMsgStr.toLowerCase().matches(".*hearthstone.*"))) {
-            String message;
-            int rand = new Random().nextInt(100);
-            if (rand < 33) {
-                message = "I play what I want.";
-            } else if (rand < 66) {
-                message = "Artifact has too much RNG.";
-            } else {
-                message = "Artifact is too expensive.";
-            }
-            event.getChannel().sendMessage(message).queue();
-        }
-
         //!won or !win
         if (eventMsgStr.equals("!won") || eventMsgStr.equals("!win")) {
             ReportResult.reportResult(event, true);
@@ -123,6 +112,20 @@ class MessageReceiver extends ListenerAdapter {
             Player opponent = PlayerLookup.getCurrentOpponent(playerId);
 
             event.getChannel().sendMessage(BotMsgs.currentOpponent(opponent)).queue();
+        }
+
+        //lol
+        if ((eventMsgStr.toLowerCase().matches(".*bot.*") && eventMsgStr.toLowerCase().matches(".*hearthstone.*")) || (eventMsgStr.toLowerCase().matches(".*ross.*") && eventMsgStr.toLowerCase().matches(".*hearthstone.*"))) {
+            String message;
+            int rand = new Random().nextInt(100);
+            if (rand < 33) {
+                message = "I play what I want.";
+            } else if (rand < 66) {
+                message = "Artifact has too much RNG.";
+            } else {
+                message = "Artifact is too expensive.";
+            }
+            event.getChannel().sendMessage(message).queue();
         }
 
         /*

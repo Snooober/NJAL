@@ -4,7 +4,6 @@ import net.dv8tion.jda.core.events.guild.GuildBanEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-//TODO fix this
 public class LeaveServerListener extends ListenerAdapter {
     @Override
     public void onGuildBan(GuildBanEvent event) {
