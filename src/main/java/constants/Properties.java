@@ -45,9 +45,9 @@ public class Properties {
                 pass = null;
             }
 
-            njalGuildId = props.getProperty("njalGuildId");
+            njalGuildId = props.getProperty("guildId");
             standingsReportChannel = props.getProperty("standingsReportChannel");
-            rossLogChannel = props.getProperty("rossLogChannel");
+            rossLogChannel = props.getProperty("logChannel");
             draftMeChannel = props.getProperty("draftMeChannel");
             registerChannel = props.getProperty("registerChannel");
             playerListChannel = props.getProperty("playerListChannel");
