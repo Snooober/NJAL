@@ -14,8 +14,9 @@ public class DiscordIds {
         ChannelIds.REGISTER_CHANNEL = props.registerChannel;
         ChannelIds.PLAYER_LIST_CHANNEL = props.playerListChannel;
         ChannelIds.OVERALL_STANDINGS_CHANNEL = props.overallStandingsChannel;
+        ChannelIds.ADMIN_COMMANDS_CHANNEL = props.adminCommandsChannel;
         CategoryIds.DRAFT_ME_CAT_ID = props.draftMeCatId;
-        RoleIds.ADMIN = props.admin;
+        RoleIds.ADMIN = props.adminRole;
     }
 
     public static final class ChannelIds {
@@ -25,6 +26,7 @@ public class DiscordIds {
         public static String REGISTER_CHANNEL;
         public static String PLAYER_LIST_CHANNEL;
         public static String OVERALL_STANDINGS_CHANNEL;
+        public static String ADMIN_COMMANDS_CHANNEL;
     }
 
     public static final class CategoryIds {

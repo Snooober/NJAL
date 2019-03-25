@@ -18,8 +18,9 @@ public class Properties {
     String registerChannel;
     String playerListChannel;
     String overallStandingsChannel;
+    String adminCommandsChannel;
     String draftMeCatId;
-    String admin;
+    String adminRole;
 
     private Properties() {
         setProperties();
@@ -51,8 +52,9 @@ public class Properties {
             registerChannel = props.getProperty("registerChannel");
             playerListChannel = props.getProperty("playerListChannel");
             overallStandingsChannel = props.getProperty("overallStandingsChannel");
+            adminCommandsChannel = props.getProperty("adminCommandsChannel");
             draftMeCatId = props.getProperty("draftMeCatId");
-            admin = props.getProperty("admin");
+            adminRole = props.getProperty("adminRole");
 
             in.close();
         } catch (FileNotFoundException e) {
