@@ -36,9 +36,8 @@ public class PlayerListBuilder {
             conn = MyDBConnection.getConnection();
             String sql;
 
-            sql = "SELECT player_id FROM ?;";
+            sql = "SELECT player_id FROM " + SQLTableNames.SQL_TOURN_PLAYERS + ";";
             stmt = conn.prepareStatement(sql);
-            stmt.setString(1, SQLTableNames.SQL_TOURN_PLAYERS);
             resultSet = stmt.executeQuery();
             while (resultSet.next()) {
                 playerIds.add(resultSet.getInt("player_id"));

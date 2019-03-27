@@ -30,15 +30,13 @@ class SQLUpdater {
             String sql;
 
             if (roundId == -1) {
-                sql = "SELECT * FROM ? ORDER BY current_round_id DESC;";
+                sql = "SELECT * FROM " + SQLTableNames.SQL_CURRENT_T + " ORDER BY current_round_id DESC;";
                 stmt = conn.prepareStatement(sql);
-                stmt.setString(1, SQLTableNames.SQL_CURRENT_T);
                 resultSet = stmt.executeQuery();
             } else {
-                sql = "SELECT * FROM ? WHERE current_round_id = ?;";
+                sql = "SELECT * FROM " + SQLTableNames.SQL_CURRENT_T + " WHERE current_round_id = ?;";
                 stmt = conn.prepareStatement(sql);
-                stmt.setString(1, SQLTableNames.SQL_CURRENT_T);
-                stmt.setInt(2, roundId);
+                stmt.setInt(1, roundId);
                 resultSet = stmt.executeQuery();
             }
 
@@ -85,11 +83,10 @@ class SQLUpdater {
             conn = MyDBConnection.getConnection();
             String sql;
 
-            sql = "UPDATE ? SET tourn = ? WHERE current_round_id = ?;";
+            sql = "UPDATE " + SQLTableNames.SQL_CURRENT_T + " SET tourn = ? WHERE current_round_id = ?;";
             stmt = conn.prepareStatement(sql);
-            stmt.setString(1, SQLTableNames.SQL_CURRENT_T);
-            stmt.setObject(2, tournament);
-            stmt.setInt(3, tournament.getCurrentRound().getRoundId());
+            stmt.setObject(1, tournament);
+            stmt.setInt(2, tournament.getCurrentRound().getRoundId());
             stmt.executeUpdate();
 
             stmt.close();
@@ -130,10 +127,9 @@ class SQLUpdater {
             //find new tournId
             int newTournId = 0;
             while (true) {
-                sql = "SELECT tourn_id from ? WHERE tourn_id = ?;";
+                sql = "SELECT tourn_id from " + SQLTableNames.SQL_ARCHIVE_T + " WHERE tourn_id = ?;";
                 stmt = conn.prepareStatement(sql);
-                stmt.setString(1, SQLTableNames.SQL_ARCHIVE_T);
-                stmt.setInt(2, newTournId);
+                stmt.setInt(1, newTournId);
                 resultSet = stmt.executeQuery();
                 if (resultSet.next()) {
                     newTournId++;
@@ -143,31 +139,26 @@ class SQLUpdater {
             }
 
             //copy current_t to archive_t
-            sql = "INSERT INTO ? (tourn_id, date, current_round_id, tourn) SELECT ?, ?, current_round_id, tourn FROM ?;";
+            sql = "INSERT INTO " + SQLTableNames.SQL_ARCHIVE_T + " (tourn_id, date, current_round_id, tourn) SELECT ?, ?, current_round_id, tourn FROM " + SQLTableNames.SQL_CURRENT_T + ";";
             stmt = conn.prepareStatement(sql);
-            stmt.setString(1, SQLTableNames.SQL_ARCHIVE_T);
-            stmt.setString(2, dateStr);
-            stmt.setInt(3, newTournId);
-            stmt.setString(4, SQLTableNames.SQL_CURRENT_T);
+            stmt.setString(1, dateStr);
+            stmt.setInt(2, newTournId);
             stmt.executeUpdate();
 
             //clear current_t
-            sql = "DELETE FROM ?;";
+            sql = "DELETE FROM " + SQLTableNames.SQL_CURRENT_T + ";";
             stmt = conn.prepareStatement(sql);
-            stmt.setString(1, SQLTableNames.SQL_CURRENT_T);
             stmt.executeUpdate();
 
             //copy tourn_players to new table
-            sql = "CREATE table ? SELECT * FROM ?;";
+            sql = "CREATE table ? SELECT * FROM " + SQLTableNames.SQL_TOURN_PLAYERS + ";";
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, "tourn_players_" + dateStr);
-            stmt.setString(2, SQLTableNames.SQL_TOURN_PLAYERS);
             stmt.executeUpdate();
 
             //clear tourn_players
-            sql = "DELETE FROM ?;";
+            sql = "DELETE FROM " + SQLTableNames.SQL_TOURN_PLAYERS + ";";
             stmt = conn.prepareStatement(sql);
-            stmt.setString(1, SQLTableNames.SQL_TOURN_PLAYERS);
             stmt.executeUpdate();
 
             resultSet.close();
@@ -210,14 +201,13 @@ class SQLUpdater {
 
             for (Player player :
                     tournament.getPlayerList()) {
-                sql = "UPDATE ? SET wins = ?, games_played = ?, byes = ?, current_game_id = ? WHERE player_id = ?;";
+                sql = "UPDATE " + SQLTableNames.SQL_TOURN_PLAYERS + " SET wins = ?, games_played = ?, byes = ?, current_game_id = ? WHERE player_id = ?;";
                 stmt = conn.prepareStatement(sql);
-                stmt.setString(1, SQLTableNames.SQL_TOURN_PLAYERS);
-                stmt.setInt(2, player.getNumWins());
-                stmt.setInt(3, player.getGamesPlayed());
-                stmt.setInt(4, player.getNumByes());
-                stmt.setInt(5, player.getCurrentGame().getGameId());
-                stmt.setInt(6, player.getPlayerId());
+                stmt.setInt(1, player.getNumWins());
+                stmt.setInt(2, player.getGamesPlayed());
+                stmt.setInt(3, player.getNumByes());
+                stmt.setInt(4, player.getCurrentGame().getGameId());
+                stmt.setInt(5, player.getPlayerId());
                 stmt.executeUpdate();
             }
 
@@ -259,10 +249,9 @@ class SQLUpdater {
                     playerList) {
 
                 //get wins, games played, byes from player
-                sql = "SELECT wins, games_played, byes FROM ? WHERE player_id = ?;";
+                sql = "SELECT wins, games_played, byes FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
                 stmt = conn.prepareStatement(sql);
-                stmt.setString(1, SQLTableNames.SQL_PLAYER_INFO);
-                stmt.setInt(2, player.getPlayerId());
+                stmt.setInt(1, player.getPlayerId());
                 resultSet = stmt.executeQuery();
 
                 resultSet.next();
@@ -270,13 +259,12 @@ class SQLUpdater {
                 int gamesPlayed = resultSet.getInt("games_played") + player.getGamesPlayed();
                 int byes = resultSet.getInt("byes") + player.getNumByes();
 
-                sql = "UPDATE ? SET wins = ?, games_played = ?, byes = ? WHERE played_id = ?;";
+                sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET wins = ?, games_played = ?, byes = ? WHERE played_id = ?;";
                 stmt = conn.prepareStatement(sql);
-                stmt.setString(1, SQLTableNames.SQL_PLAYER_INFO);
-                stmt.setInt(2, wins);
-                stmt.setInt(3, gamesPlayed);
-                stmt.setInt(4, byes);
-                stmt.setInt(5, player.getPlayerId());
+                stmt.setInt(1, wins);
+                stmt.setInt(2, gamesPlayed);
+                stmt.setInt(3, byes);
+                stmt.setInt(4, player.getPlayerId());
                 stmt.executeUpdate();
             }
 
@@ -284,20 +272,18 @@ class SQLUpdater {
             playerList.sort(new PlayerStandingsComparator());
             Player winner = playerList.get(0);
 
-            sql = "SELECT tourn_wins FROM ? WHERE player_id = ?;";
+            sql = "SELECT tourn_wins FROM " + SQLTableNames.SQL_PLAYER_INFO + " WHERE player_id = ?;";
             stmt = conn.prepareStatement(sql);
-            stmt.setString(1, SQLTableNames.SQL_PLAYER_INFO);
-            stmt.setInt(2, winner.getPlayerId());
+            stmt.setInt(1, winner.getPlayerId());
             resultSet = stmt.executeQuery();
 
             resultSet.next();
             int tournWins = resultSet.getInt("tourn_wins") + 1;
 
-            sql = "UPDATE ? SET tourn_wins = ? WHERE player_id = ?;";
+            sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET tourn_wins = ? WHERE player_id = ?;";
             stmt = conn.prepareStatement(sql);
-            stmt.setString(1, SQLTableNames.SQL_PLAYER_INFO);
-            stmt.setInt(2, tournWins);
-            stmt.setInt(3, winner.getPlayerId());
+            stmt.setInt(1, tournWins);
+            stmt.setInt(2, winner.getPlayerId());
             stmt.executeUpdate();
 
         } catch (SQLException e) {

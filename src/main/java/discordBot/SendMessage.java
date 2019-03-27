@@ -300,9 +300,8 @@ public class SendMessage {
             conn = MyDBConnection.getConnection();
             String sql;
 
-            sql = "SELECT player_id, discord_name, wins, games_played, byes, tourn_wins FROM ?;";
+            sql = "SELECT player_id, discord_name, wins, games_played, byes, tourn_wins FROM " + SQLTableNames.SQL_PLAYER_INFO + ";";
             stmt = conn.prepareStatement(sql);
-            stmt.setString(1, SQLTableNames.SQL_PLAYER_INFO);
             resultSet = stmt.executeQuery();
 
             List<PlayerRank> playerRankList = new ArrayList<>();
