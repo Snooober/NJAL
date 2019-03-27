@@ -3,16 +3,14 @@ package tournManager;
 import constants.SQLTableNames;
 import helpers.MyDBConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.Serializable;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-class SQLUpdater {
+class SQLUpdater implements Serializable {
     private Tournament tournament;
 
     SQLUpdater(Tournament tournament) {
@@ -75,7 +73,6 @@ class SQLUpdater {
         return loadedTourn;
     }
 
-    //TODO need to make Tournament() objects serializable
     void saveTourn() {
         Connection conn = null;
         PreparedStatement stmt = null;

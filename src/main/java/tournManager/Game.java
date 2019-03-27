@@ -1,6 +1,8 @@
 package tournManager;
 
-public class Game {
+import java.io.Serializable;
+
+public class Game implements Serializable {
     private Player player1;
     private Player player2;
     private int gameId;

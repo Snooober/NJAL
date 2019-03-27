@@ -2,11 +2,12 @@ package tournManager;
 
 import discordBot.RegistrationHandler;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Tournament {
+public class Tournament implements Serializable {
     private static Tournament tournament = null;
 
     private int maxRounds;

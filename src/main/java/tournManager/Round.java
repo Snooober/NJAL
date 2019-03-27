@@ -1,9 +1,10 @@
 package tournManager;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Round {
+public class Round implements Serializable {
     private List<Game> roundGames;
     private Player byePlayer;
     private int roundId;

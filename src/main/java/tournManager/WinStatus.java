@@ -1,6 +1,8 @@
 package tournManager;
 
-public enum WinStatus {
+import java.io.Serializable;
+
+public enum WinStatus implements Serializable {
     PENDING,
     PLAYER1,
     PLAYER2,

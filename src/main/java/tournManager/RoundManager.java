@@ -3,11 +3,12 @@ package tournManager;
 import discordBot.RegistrationHandler;
 import discordBot.SendMessage;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-class RoundManager {
+class RoundManager implements Serializable {
     private Tournament tournament;
     private List<Round> roundsList;
 
