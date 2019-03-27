@@ -75,6 +75,7 @@ class SQLUpdater {
         return loadedTourn;
     }
 
+    //TODO need to make Tournament() objects serializable
     void saveTourn() {
         Connection conn = null;
         PreparedStatement stmt = null;
