@@ -15,7 +15,6 @@ public class Round implements Serializable {
         this.roundId = tournament.getRoundsList().size();
         roundGames = new ArrayList<>();
         byePlayer = null;
-        tournament.getRoundsList().add(this);
     }
 
     void addGame(Player player1, Player player2) {

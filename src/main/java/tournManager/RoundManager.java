@@ -47,6 +47,8 @@ class RoundManager implements Serializable {
             newRound.setByePlayer(playerList.get(index));
         }
 
+        roundsList.add(newRound);
+
         //TODO may need to adjust byes when sending standings
         SendMessage.sendStandings(tournament);
 

@@ -106,7 +106,7 @@ public class Tournament implements Serializable {
     }
 
     public boolean onFinalRound() {
-        return (!(roundManager.getRoundsList().size() < (maxRounds)));
+        return (!(roundManager.getRoundsList().size() < maxRounds));
     }
 
     List<Round> getRoundsList() {
