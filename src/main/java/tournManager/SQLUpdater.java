@@ -149,9 +149,8 @@ class SQLUpdater implements Serializable {
             stmt.executeUpdate();
 
             //copy tourn_players to new table
-            sql = "CREATE table ? SELECT * FROM " + SQLTableNames.SQL_TOURN_PLAYERS + ";";
+            sql = "CREATE TABLE tourn_players_" + dateStr + " SELECT * FROM " + SQLTableNames.SQL_TOURN_PLAYERS + ";";
             stmt = conn.prepareStatement(sql);
-            stmt.setString(1, "tourn_players_" + dateStr);
             stmt.executeUpdate();
 
             //clear tourn_players
@@ -204,7 +203,11 @@ class SQLUpdater implements Serializable {
                 stmt.setInt(1, player.getNumWins());
                 stmt.setInt(2, player.getGamesPlayed());
                 stmt.setInt(3, player.getNumByes());
-                stmt.setInt(4, player.getCurrentGame().getGameId());
+                if (player.getCurrentGame() == null) {
+                    stmt.setNull(4, Types.INTEGER);
+                } else {
+                    stmt.setInt(4, player.getCurrentGame().getGameId());
+                }
                 stmt.setInt(5, player.getPlayerId());
                 stmt.executeUpdate();
             }
@@ -257,7 +260,7 @@ class SQLUpdater implements Serializable {
                 int gamesPlayed = resultSet.getInt("games_played") + player.getGamesPlayed();
                 int byes = resultSet.getInt("byes") + player.getNumByes();
 
-                sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET wins = ?, games_played = ?, byes = ? WHERE played_id = ?;";
+                sql = "UPDATE " + SQLTableNames.SQL_PLAYER_INFO + " SET wins = ?, games_played = ?, byes = ? WHERE player_id = ?;";
                 stmt = conn.prepareStatement(sql);
                 stmt.setInt(1, wins);
                 stmt.setInt(2, gamesPlayed);
